@@ -3,8 +3,10 @@ plugins {
     application
 }
 
+val module = "nl.helico.ktorize.web.docs.ServerKt"
+
 application {
-    mainClass.set("nl.helico.ktorize.web.docs.ServerKt")
+    mainClass.set(module)
 }
 
 dependencies {
@@ -27,4 +29,14 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+tasks.register("runDev") {
+    group = "application"
+
+    val originalTask = tasks.getByName("run") as JavaExec
+
+    originalTask.args("-config=application-dev.conf")
+
+    dependsOn(originalTask)
 }
