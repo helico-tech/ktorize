@@ -33,11 +33,11 @@ class AssetMapperConfiguration {
 val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration() }) {
 
     val assetMapper = pluginConfig.factory(this).also { assetMapper ->
-        if (assetMapper is AssetMapper.Preload) {
-            assetMapper.preload().forEach { asset ->
-                LOGGER.info("Mapped asset: $asset -> ${assetMapper.map(asset)}")
-            }
-        }
+//        if (assetMapper is AssetMapper.Preload) {
+//            assetMapper.preload().forEach { asset ->
+//                LOGGER.info("Mapped asset: $asset -> ${assetMapper.map(asset)}")
+//            }
+//        }
     }
 
     val hook = AssetMapperHook(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames)
