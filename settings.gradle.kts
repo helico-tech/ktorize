@@ -7,3 +7,5 @@ include(":lib:hotwire-turbo")
 include(":lib:html")
 
 include(":examples:simple-server")
+
+include(":websites:documentation")
