@@ -8,8 +8,9 @@ class FormTests {
     @Test
     fun basicTest() {
         val form = object : Form() {
-            var name by scalar<String>().withDefault("John")
+            var name by scalar<String>().default("John")
             var age by scalar<Int>()
+            val agreed by scalar<Boolean>().required()
         }
 
         assertEquals("John", form.name)
