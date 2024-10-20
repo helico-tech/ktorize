@@ -8,16 +8,16 @@ class FormTests {
     @Test
     fun basicTest() {
         val form = object : Form() {
-            val name by scalar<String>().withDefault("John")
-            val age by scalar<Int>()
+            var name by scalar<String>().withDefault("John")
+            var age by scalar<Int>()
         }
 
-        assertEquals("John", form.name.get())
-        form.name.set("Jane")
-        assertEquals("Jane", form.name.get())
+        assertEquals("John", form.name)
+        form.name = "Jane"
+        assertEquals("Jane", form.name)
 
-        assertEquals(null, form.age.getOrNull())
-        form.age.set(42)
-        assertEquals(42, form.age.getOrNull())
+        assertEquals(null, form.age)
+        form.age = 42
+        assertEquals(42, form.age)
     }
 }
