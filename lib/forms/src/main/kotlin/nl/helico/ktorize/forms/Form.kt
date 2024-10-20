@@ -12,7 +12,7 @@ abstract class Form(
 ) {
     private val parametersBuilder = ParametersBuilder().apply { appendAll(initialParameters) }
 
-    fun <T : Any?> parameter(serializer: KSerializer<T>) = ParameterDelegate(parametersBuilder, serializer)
+    fun <T : Any?> scalar(serializer: KSerializer<T>) = ScalarDelegate(parametersBuilder, serializer)
 
-    inline fun <reified T : Any?> parameter() = parameter<T>(serializersModule.serializer())
+    inline fun <reified T : Any?> scalar() = scalar<T>(serializersModule.serializer())
 }
