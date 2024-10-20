@@ -30,13 +30,3 @@ kotlin {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
-
-tasks.register("runDev") {
-    group = "application"
-
-    val originalTask = tasks.getByName("run") as JavaExec
-
-    originalTask.args("-config=application-dev.conf")
-
-    dependsOn(originalTask)
-}
