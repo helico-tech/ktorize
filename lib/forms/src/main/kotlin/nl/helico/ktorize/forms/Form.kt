@@ -15,23 +15,29 @@ abstract class Form(
 
     private val delegates = mutableMapOf<String, Field<*>>()
 
-    fun <T> field(readSchema: Schema<T>, writeSchema: Schema<String?>): Field<T> {
-        val field = SchemaBasedField(readSchema, writeSchema, parametersBuilder) {
+    fun <T> field(type: FieldType<T>): Field<T> {
+        val field = Field(type, parametersBuilder) {
             delegates[it.name] = it
         }
         return field
     }
 
-    inline fun <reified T> field(readSchema: Schema<T>): Field<T> {
-        // overwrite String class, because it is already properly formatted
+    inline fun <reified T> field(builder: Schema<String?>.() -> Schema<T>): Field<T> {
+        val schema = builder(Schema.ofType<String?>())
+        return FieldType(schema)
+    }
+
+    inline operator fun <reified T> FieldType.Companion.invoke(schema: Schema<T>): Field<T> {
         if (T::class == String::class) {
-            return field(readSchema, Schema.ofType<String?>())
+            val fieldType = invoke(schema, Schema.ofType<String?>())
+            return field(fieldType)
         }
 
         val writeSchema = Schema.ofType<T?>().map {
             it?.let { Json.encodeToString(serializersModule.serializer(), it) }
         }
 
-        return field(readSchema, writeSchema)
+        val fieldType = invoke(schema, writeSchema)
+        return field(fieldType)
     }
 }
