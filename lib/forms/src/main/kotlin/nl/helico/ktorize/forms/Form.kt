@@ -12,7 +12,11 @@ abstract class Form(
 ) {
     private val parametersBuilder = ParametersBuilder().apply { appendAll(initialParameters) }
 
-    fun <T : Any?> scalar(serializer: KSerializer<T>) = ScalarDelegate(parametersBuilder, serializer)
+    private val delegates = mutableMapOf<String, Field<*>>()
+
+    fun <T : Any?> scalar(serializer: KSerializer<T>) = ScalarDelegate(parametersBuilder, serializer) { field ->
+        delegates[field.name] = field
+    }
 
     inline fun <reified T : Any?> scalar() = scalar<T>(serializersModule.serializer())
 }
