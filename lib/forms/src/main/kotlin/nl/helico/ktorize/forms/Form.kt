@@ -51,4 +51,9 @@ abstract class Form(
         }
         return results
     }
+
+    fun hydrate(parameters: Parameters) {
+        parametersBuilder.clear()
+        parametersBuilder.appendAll(parameters)
+    }
 }
