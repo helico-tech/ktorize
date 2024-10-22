@@ -26,7 +26,7 @@ abstract class Form(
             }
         }
         val fieldType = FieldType(this, writeSchema)
-        val delegate = FieldDelegate(fieldType, parametersBuilder, property)
+        val delegate = FieldDelegate(fieldType, property)
 
         registerDelegate(delegate)
 
