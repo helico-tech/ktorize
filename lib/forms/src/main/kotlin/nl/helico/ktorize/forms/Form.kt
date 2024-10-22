@@ -5,39 +5,50 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 import nl.helico.ktorize.schemas.Schema
+import nl.helico.ktorize.schemas.deserialize
 import nl.helico.ktorize.schemas.map
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 abstract class Form(
     initialParameters: Parameters = Parameters.Empty,
     val serializersModule: SerializersModule = Json.serializersModule
 ) {
-    private val parametersBuilder = ParametersBuilder().apply { appendAll(initialParameters) }
+    val parametersBuilder = ParametersBuilder().apply { appendAll(initialParameters) }
 
-    private val delegates = mutableMapOf<String, Field<*>>()
+    private val delegates = mutableMapOf<String, FieldDelegate<*>>()
 
-    fun <T> field(type: FieldType<T>): Field<T> {
-        val field = Field(type, parametersBuilder) {
-            delegates[it.name] = it
-        }
-        return field
-    }
-
-    inline fun <reified T> field(builder: Schema<String?>.() -> Schema<T>): Field<T> {
-        val schema = builder(Schema.ofType<String?>())
-        return FieldType(schema)
-    }
-
-    inline operator fun <reified T> FieldType.Companion.invoke(schema: Schema<T>): Field<T> {
-        if (T::class == String::class) {
-            val fieldType = invoke(schema, Schema.ofType<String?>())
-            return field(fieldType)
-        }
-
+    inline operator fun <reified T> Schema<T>.provideDelegate(thisRef: Form, property: KProperty<*>): ReadWriteProperty<Form, T> {
         val writeSchema = Schema.ofType<T?>().map {
-            it?.let { Json.encodeToString(serializersModule.serializer(), it) }
+            when (it) {
+                is String? -> it
+                else -> Json.encodeToString(serializersModule.serializer(), it)
+            }
         }
+        val fieldType = FieldType(this, writeSchema)
+        val delegate = FieldDelegate(fieldType, parametersBuilder, property)
 
-        val fieldType = invoke(schema, writeSchema)
-        return field(fieldType)
+        registerDelegate(delegate)
+
+        return delegate
+    }
+
+    fun registerDelegate(delegate: FieldDelegate<*>) {
+        delegates[delegate.property.name] = delegate
+    }
+
+    inline fun <reified T> field(): Schema<T?> = Schema.ofType<String>().deserialize()
+
+    fun validate(): Map<KProperty<*>, Exception> {
+        val results = mutableMapOf<KProperty<*>, Exception>()
+
+        for ((_, delegate) in delegates) {
+            try {
+                delegate.getValue(this, delegate.property)
+            } catch (e: Exception) {
+                results[delegate.property] = e
+            }
+        }
+        return results
     }
 }

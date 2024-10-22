@@ -11,6 +11,7 @@ interface Schema<T> {
     fun parse(raw: Any?): T
 
     companion object {
+
         inline fun <reified T> ofType(): Schema<T?> = object : Schema<T?> {
             override fun parse(raw: Any?): T? = when (raw) {
                 is T -> raw
@@ -48,11 +49,23 @@ fun <T> Schema<String>.deserialize(stringFormat: StringFormat = Json, serializer
     stringFormat.decodeFromString(serializer, data)
 }
 
+@Suppress("UNCHECKED_CAST")
 @JvmName("deserializeNullable")
-inline fun <reified T> Schema<String?>.deserialize(stringFormat: StringFormat, serializersModule: SerializersModule) = deserialize<T>(stringFormat = stringFormat, serializer = serializersModule.serializer())
+inline fun <reified T> Schema<String?>.deserialize(stringFormat: StringFormat, serializersModule: SerializersModule): Schema<T?> {
+    return when (T::class) {
+        String::class -> this as Schema<T?>
+        else -> deserialize(stringFormat = stringFormat, serializer = serializersModule.serializer())
+    }
+}
 
+@Suppress("UNCHECKED_CAST")
 @JvmName("deserialize")
-inline fun <reified T> Schema<String>.deserialize(stringFormat: StringFormat, serializersModule: SerializersModule) = deserialize<T>(stringFormat = stringFormat, serializer = serializersModule.serializer())
+inline fun <reified T> Schema<String>.deserialize(stringFormat: StringFormat, serializersModule: SerializersModule): Schema<T> {
+    return when (T::class) {
+        String::class -> this as Schema<T>
+        else -> deserialize(stringFormat = stringFormat, serializer = serializersModule.serializer())
+    }
+}
 
 @JvmName("deserializeNullable")
 inline fun <reified T> Schema<String?>.deserialize() = deserialize<T>(stringFormat = Json, serializersModule = EmptySerializersModule())
@@ -66,4 +79,13 @@ fun <T> Schema<T?>.notNull(): Schema<T> = object : Schema<T> {
         else -> value
     }
 }
+
+fun <T> Schema<T?>.default(default: T): Schema<T> = object : Schema<T> {
+    override fun parse(raw: Any?): T = when (val value = this@default.parse(raw)) {
+        null -> default
+        else -> value
+    }
+}
+
+
 
