@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 class FormTests {
 
     @Test
-    fun singleString() {
+    fun fieldString() {
         val parameters = Parameters.build {
             append("name", "John")
         }
@@ -23,7 +23,7 @@ class FormTests {
     }
 
     @Test
-    fun singleNonStrings() {
+    fun fieldNonStrings() {
         val parameters = Parameters.build {
             append("age", "25")
             append("height", "1.80")
@@ -38,5 +38,19 @@ class FormTests {
         assertEquals(25, form.age)
         assertEquals(1.80, form.height)
         assertEquals(null, form.valid)
+    }
+
+    @Test
+    fun fieldMultipleStrings() {
+        val parameters = Parameters.build {
+            append("names", "John")
+            append("names", "Jane")
+        }
+
+        val form = object : Form(parameters) {
+            val names by field<String>().multiple()
+        }
+
+        assertEquals(listOf("John", "Jane"), form.names)
     }
 }
