@@ -14,12 +14,18 @@ class FormTests {
         }
 
         val form = object : Form(parameters) {
-            val name by field<String>().notNull()
-            val lastName by field<String>()
+            var name by field<String>().notNull()
+            var lastName by field<String>()
         }
 
         assertEquals("John", form.name)
         assertEquals(null, form.lastName)
+
+        form.name = "Alice"
+        form.lastName = "Doe"
+
+        assertEquals("Alice", form.name)
+        assertEquals("Doe", form.lastName)
     }
 
     @Test
@@ -30,14 +36,22 @@ class FormTests {
         }
 
         val form = object : Form(parameters) {
-            val age by field<Int>().notNull()
-            val height by field<Double>().notNull()
-            val valid by field<Boolean>()
+            var age by field<Int>().notNull()
+            var height by field<Double>().notNull()
+            var valid by field<Boolean>()
         }
 
         assertEquals(25, form.age)
         assertEquals(1.80, form.height)
         assertEquals(null, form.valid)
+
+        form.age = 30
+        form.height = 1.85
+        form.valid = true
+
+        assertEquals(30, form.age)
+        assertEquals(1.85, form.height)
+        assertEquals(true, form.valid)
     }
 
     @Test
@@ -48,9 +62,13 @@ class FormTests {
         }
 
         val form = object : Form(parameters) {
-            val names by field<String>().multiple()
+            var names by field<String>().multiple()
         }
 
         assertEquals(listOf("John", "Jane"), form.names)
+
+        form.names = listOf("Alice", "Bob")
+
+        assertEquals(listOf("Alice", "Bob"), form.names)
     }
 }
