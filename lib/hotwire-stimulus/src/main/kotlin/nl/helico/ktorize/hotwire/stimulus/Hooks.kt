@@ -21,7 +21,7 @@ class StimulusControllerAttributeHook(
 }
 
 class StimulusSetupScriptsHook(
-    private val registry: ControllerRegistry,
+    private val initScript: StimulusInitScript,
 ) : Hook.TagEnd {
     override fun beforeTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag): Boolean {
         if (tag !is HEAD) return true
@@ -32,17 +32,7 @@ class StimulusSetupScriptsHook(
                 consumer = downstream
             ).visit {
                 unsafe {
-                    raw("""
-                        import { Application } from "@hotwired/stimulus";
-                        
-                        import HelloController from "hello";
-                        
-                        window.Stimulus = Application.start();
-                        
-                        Stimulus.register("hello", HelloController);
-                        
-                        console.log("Foo");
-                    """.trimIndent())
+                    +initScript.script()
                 }
             }
         }

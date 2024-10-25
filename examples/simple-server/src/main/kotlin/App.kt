@@ -26,8 +26,7 @@ fun main() {
         routing {
             get("/") {
                 call.respondHtml {
-                    html {
-                        head {                        }
+                    head {}
                         body {
                             TurboFrame("foo") {
                                 h1 { + "Hello world" }
@@ -38,20 +37,17 @@ fun main() {
                             }
                         }
                     }
-                }
             }
 
             get("/stimulus") {
                 call.respondHtml {
-                    html {
-                        head {
-                            title { +"Hello, World!" }
-                        }
-                        body {
-                            div {
-                                stimulusController("hello")
-                                +"Hello, World!"
-                            }
+                    head {
+                        title { +"Hello, World!" }
+                    }
+                    body {
+                        div {
+                            stimulusController("hello")
+                            +"Hello, World!"
                         }
                     }
                 }

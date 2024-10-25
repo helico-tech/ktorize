@@ -12,7 +12,13 @@ data class ImportMap(
     val imports: Map<String, String>,
 ) {
     override fun toString(): String {
-        return Json.encodeToString(this)
+        return JsonSerializer.encodeToString(this)
+    }
+
+    companion object {
+        val JsonSerializer = Json {
+            prettyPrint = true
+        }
     }
 }
 
