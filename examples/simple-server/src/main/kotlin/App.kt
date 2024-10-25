@@ -13,11 +13,13 @@ import nl.helico.ktorize.hotwire.stimulus.stimulusController
 import nl.helico.ktorize.hotwire.turbo.HotwireTurboPlugin
 import nl.helico.ktorize.hotwire.turbo.TurboFrame
 import nl.helico.ktorize.html.respondHtml
+import nl.helico.ktorize.importmap.ImportMapPlugin
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
 
         install(AssetMapperPlugin)
+        install(ImportMapPlugin)
         install(HotwireTurboPlugin)
         install(HotwireStimulusPlugin)
 

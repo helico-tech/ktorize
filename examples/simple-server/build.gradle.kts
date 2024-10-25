@@ -16,4 +16,5 @@ dependencies {
     implementation(projects.lib.assetMapper)
     implementation(projects.lib.hotwireTurbo)
     implementation(projects.lib.hotwireStimulus)
+    implementation(projects.lib.importmap)
 }

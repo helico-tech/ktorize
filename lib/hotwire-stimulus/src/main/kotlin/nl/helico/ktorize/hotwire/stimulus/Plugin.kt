@@ -38,6 +38,6 @@ val HotwireStimulusPlugin = createApplicationPlugin(name, { HotwireStimulusConfi
         }
 
         call.hooks.add(StimulusControllerAttributeHook(controllerRegistry))
-        call.hooks.add(StimulusSetupScriptsHook(controllerRegistry, assetMapper, controllerResolver))
+        call.hooks.add(StimulusSetupScriptsHook(controllerRegistry))
     }
 }

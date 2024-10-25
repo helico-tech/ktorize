@@ -22,10 +22,31 @@ class StimulusControllerAttributeHook(
 
 class StimulusSetupScriptsHook(
     private val registry: ControllerRegistry,
-    private val assetMapper: AssetMapper,
-    private val controllerResolver: ControllerResolver,
 ) : Hook.TagEnd {
     override fun beforeTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag): Boolean {
+        if (tag !is HEAD) return true
+
+        consumer.defer { downstream ->
+            SCRIPT(
+                initialAttributes = mapOf("type" to "module"),
+                consumer = downstream
+            ).visit {
+                unsafe {
+                    raw("""
+                        import { Application } from "@hotwired/stimulus";
+                        
+                        import HelloController from "hello";
+                        
+                        window.Stimulus = Application.start();
+                        
+                        Stimulus.register("hello", HelloController);
+                        
+                        console.log("Foo");
+                    """.trimIndent())
+                }
+            }
+        }
+
         return true
     }
 
