@@ -7,7 +7,6 @@ import kotlinx.serialization.serializer
 import nl.helico.ktorize.schemas.Schema
 import nl.helico.ktorize.schemas.deserialize
 import nl.helico.ktorize.schemas.map
-import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -67,5 +66,11 @@ abstract class Form(
     fun hydrate(parameters: Parameters) {
         parametersBuilder.clear()
         parametersBuilder.appendAll(parameters)
+    }
+
+    companion object {
+        fun interface Factory<F : Form> {
+            fun create(): F
+        }
     }
 }
