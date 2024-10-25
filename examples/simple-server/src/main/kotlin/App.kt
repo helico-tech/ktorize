@@ -8,8 +8,8 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 import nl.helico.ktorize.assetmapper.AssetMapperPlugin
 import nl.helico.ktorize.assetmapper.createMappedAssetRegex
-import nl.helico.ktorize.html.hotwire.turbo.HotwireTurboPlugin
-import nl.helico.ktorize.html.hotwire.turbo.TurboFrame
+import nl.helico.ktorize.hotwire.turbo.HotwireTurboPlugin
+import nl.helico.ktorize.hotwire.turbo.TurboFrame
 import nl.helico.ktorize.html.respondHtml
 
 fun main() {
@@ -19,7 +19,6 @@ fun main() {
         install(AssetMapperPlugin)
 
         routing {
-
             get("/") {
                 call.respondHtml {
                     html {
