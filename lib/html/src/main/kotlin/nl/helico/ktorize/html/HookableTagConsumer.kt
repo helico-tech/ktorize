@@ -9,7 +9,7 @@ import kotlinx.html.org.w3c.dom.events.Event
 
 class HookableTagConsumer<O>(
     val hooks: List<Hook>,
-    val downstream: TagConsumer<O>,
+    val downstream: DeferredTagConsumer<O>,
 ) : TagConsumer<O> {
 
     companion object {

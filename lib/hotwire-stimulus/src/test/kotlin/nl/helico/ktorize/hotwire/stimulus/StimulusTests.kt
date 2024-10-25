@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import kotlinx.html.*
+import nl.helico.ktorize.assetmapper.AssetMapperPlugin
 import nl.helico.ktorize.html.respondHtml
 import kotlin.test.Test
 
@@ -18,6 +19,8 @@ class StimulusTests {
         lateinit var registry: ControllerRegistry
 
         application {
+            install(AssetMapperPlugin)
+
             install(HotwireStimulusPlugin) {
                 stimulusSrc = this.src
             }
@@ -27,13 +30,15 @@ class StimulusTests {
                     call.respondHtml {
                         registry = call.attributes[ControllerRegistry.Key]
 
-                        head {
-                            title { +"Hello, World!" }
-                        }
-                        body {
-                            div {
-                                stimulusController("hello")
-                                +"Hello, World!"
+                        html {
+                            head {
+                                title { +"Hello, World!" }
+                            }
+                            body {
+                                div {
+                                    stimulusController("hello")
+                                    +"Hello, World!"
+                                }
                             }
                         }
                     }
@@ -46,7 +51,8 @@ class StimulusTests {
         val body = response.bodyAsText()
 
         assert(body.contains(stimulusSrc))
-        assert(registry.getNames().contains("hello"))
+        assert(registry.identifiers().contains("hello"))
+
     }
 
 }

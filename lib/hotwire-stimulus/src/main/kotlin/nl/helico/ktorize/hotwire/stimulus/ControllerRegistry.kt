@@ -8,12 +8,12 @@ class ControllerRegistry {
         val Key = AttributeKey<ControllerRegistry>("ControllerRegistry")
     }
 
-    private val controllers = mutableSetOf<String>()
+    private val identifiers = mutableSetOf<String>()
 
-    fun registerName(name: String) {
-        controllers.add(name)
+    fun registerIdentifier(name: String) {
+        identifiers.add(name)
     }
 
-    fun getNames(): Set<String> = controllers
+    fun identifiers(): Set<String> = identifiers
 
 }

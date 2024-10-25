@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.logback.classic)
 
     implementation(projects.lib.html)
-    implementation(projects.lib.hotwireTurbo)
     implementation(projects.lib.assetMapper)
+    implementation(projects.lib.hotwireTurbo)
+    implementation(projects.lib.hotwireStimulus)
 }

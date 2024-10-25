@@ -35,12 +35,12 @@ class HookableTagConsumerTests {
     @Test
     fun injectCustomScriptHook() {
         val hook = object : Hook.TagEnd {
-            override fun beforeTagEnd(consumer: TagConsumer<*>, tag: Tag): Boolean {
+            override fun beforeTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag): Boolean {
                 (tag as? HEAD)?.script(src = "custom.js") {}
                 return true
             }
 
-            override fun afterTagEnd(consumer: TagConsumer<*>, tag: Tag) {}
+            override fun afterTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag) {}
         }
 
         val result = consumer(listOf(hook)).html {
