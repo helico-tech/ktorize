@@ -1,11 +1,12 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 dependencies {
-    api(libs.kotlinx.html)
-
     implementation(libs.ktor.server.core)
+    implementation(libs.kotlinx.html)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(kotlin("test"))
 }
