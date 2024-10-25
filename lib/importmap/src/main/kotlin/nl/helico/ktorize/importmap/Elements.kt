@@ -10,8 +10,7 @@ import kotlinx.serialization.json.Json
 @HtmlTagMarker
 fun HEAD.ImportMap(importMap: ImportMap) {
     script(type = "importmap") {
-        val serialized = Json.encodeToString(importMap)
-        unsafe { +serialized }
+        unsafe { +importMap.toString() }
     }
 }
 

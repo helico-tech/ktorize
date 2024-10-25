@@ -8,6 +8,7 @@ import io.ktor.server.testing.*
 import kotlinx.html.*
 import nl.helico.ktorize.assetmapper.AssetMapperPlugin
 import nl.helico.ktorize.html.respondHtml
+import nl.helico.ktorize.importmap.ImportMapPlugin
 import kotlin.test.Test
 
 class StimulusTests {
@@ -20,7 +21,7 @@ class StimulusTests {
 
         application {
             install(AssetMapperPlugin)
-
+            install(ImportMapPlugin)
             install(HotwireStimulusPlugin) {
                 stimulusSrc = this.src
             }

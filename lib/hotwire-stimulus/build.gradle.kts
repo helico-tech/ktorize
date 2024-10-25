@@ -7,6 +7,7 @@ dependencies {
 
     implementation(projects.lib.html)
     implementation(projects.lib.assetMapper)
+    implementation(projects.lib.importmap)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.ktor.server.test.host)

@@ -13,7 +13,7 @@ class ImportMapTests {
             addModuleSpecifier("@hotwired/stimulus", "https://cdn.skypack.dev/@hotwired/stimulus")
         }
 
-        val serialized = Json.encodeToString(importMap)
+        val serialized = importMap.toString()
 
         assertEquals("""{"imports":{"@hotwired/stimulus":"https://cdn.skypack.dev/@hotwired/stimulus"}}""", serialized)
     }

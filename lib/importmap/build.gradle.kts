@@ -8,5 +8,7 @@ dependencies {
     implementation(libs.kotlinx.html)
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(projects.ktorize.lib.html)
+
     testImplementation(kotlin("test"))
 }
