@@ -5,4 +5,5 @@ plugins {
 dependencies {
     implementation(libs.ktor.server.core)
     implementation(projects.lib.html)
+    implementation(projects.lib.importmap)
 }
