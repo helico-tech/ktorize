@@ -8,6 +8,7 @@ import nl.helico.ktorize.html.Hook
 class StimulusControllerAttributeHook(
     private val registry: ControllerRegistry,
 ) : Hook.TagEnd {
+
     override fun beforeTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag): Boolean {
         return true
     }

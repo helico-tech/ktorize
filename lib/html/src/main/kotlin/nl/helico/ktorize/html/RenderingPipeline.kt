@@ -2,6 +2,7 @@ package nl.helico.ktorize.html
 
 import io.ktor.server.application.*
 import io.ktor.util.*
+import io.ktor.util.logging.*
 
 interface RenderingPipeline {
     companion object {
@@ -16,9 +17,17 @@ interface RenderingPipeline {
 fun RenderingPipeline(): RenderingPipeline = RenderingPipelineImpl()
 
 class RenderingPipelineImpl : RenderingPipeline {
+
+    private val LOGGER = KtorSimpleLogger("RenderingPipelineImpl")
+
+    init {
+        LOGGER.info("RenderingPipelineImpl created")
+    }
+
     override val hooks = mutableListOf<Hook>()
 
     override fun addHook(hook: Hook) {
+        LOGGER.debug("Adding hook {}", hook)
         hooks.add(hook)
     }
 }

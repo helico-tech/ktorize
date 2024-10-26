@@ -1,12 +1,15 @@
 package nl.helico.ktorize.hotwire.stimulus
 
 import io.ktor.server.application.*
+import io.ktor.util.logging.*
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.AssetMapperConfiguration
 import nl.helico.ktorize.html.renderingPipeline
 import nl.helico.ktorize.importmap.ImportMapBuilder
 
 internal val name = "HotwireStimulusPlugin"
+
+internal val LOGGER = KtorSimpleLogger(name)
 
 class HotwireStimulusConfiguration {
     val controllerPrefix = "/controllers"
@@ -15,9 +18,11 @@ class HotwireStimulusConfiguration {
 
 val HotwireStimulusPlugin = createRouteScopedPlugin(name, { HotwireStimulusConfiguration() }) {
 
+    val assetMapper = application.attributes.getOrNull(AssetMapper.Key) ?: error("AssetMapper not found")
+    val assetMapperConfig = application.attributes.getOrNull(AssetMapperConfiguration.Key) ?: error("AssetMapperConfiguration not found")
+
     onCall { call ->
-        val assetMapper = call.application.attributes.getOrNull(AssetMapper.Key) ?: error("AssetMapper not found")
-        val assetMapperConfig = call.application.attributes.getOrNull(AssetMapperConfiguration.Key) ?: error("AssetMapperConfiguration not found")
+
         val importMapBuilder = call.attributes.getOrNull(ImportMapBuilder.Key) ?: error("ImportMapBuilder not found")
 
         val controllerRegistry = ControllerRegistry()

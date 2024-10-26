@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.util.logging.*
 import io.ktor.utils.io.*
 import kotlinx.io.Buffer
 import kotlinx.io.readLine
@@ -14,6 +15,8 @@ import kotlin.io.path.Path
 class CSSAssetTransformer(
     private val assetMapper: AssetMapper
 ) : AssetTransformer {
+
+    private val LOGGER = KtorSimpleLogger("CSSAssetTransformer")
 
     val cssImportRegex = Regex("""@import\s+(url\((['"]?)(.*?)\2\)|(['"])(.*?)\4)""")
 
@@ -37,11 +40,13 @@ class CSSAssetTransformer(
                 val relativeUrl = currentUrl.parent.resolve(url).toString()
                 val mappedUrl = assetMapper.map(relativeUrl)
 
+                LOGGER.debug("Old URL: $url")
                 if (match.groupValues[1].startsWith("url")) {
                     line = line.replace(url, mappedUrl)
                 } else {
                     line = line.replace("\"$url\"", "url(\"$mappedUrl\")")
                 }
+                LOGGER.debug("New URL: $mappedUrl")
             }
 
             output.appendLine(line)

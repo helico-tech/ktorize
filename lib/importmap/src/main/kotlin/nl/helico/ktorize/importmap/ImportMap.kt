@@ -1,6 +1,7 @@
 package nl.helico.ktorize.importmap
 
 import io.ktor.util.*
+import io.ktor.util.logging.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -44,12 +45,15 @@ interface ImportMapBuilder {
 class ImportMapBuilderImpl : ImportMapBuilder {
     private val imports = mutableMapOf<String, String>()
     private val providers = mutableListOf<ImportMapBuilder.Provider>()
+    private val LOGGER = KtorSimpleLogger("ImportMapBuilderImpl")
 
     override fun addModuleSpecifier(moduleSpecifier: String, url: String) {
+        LOGGER.debug("Adding module specifier: $moduleSpecifier -> $url")
         imports[moduleSpecifier] = url
     }
 
     override fun addProvider(provider: ImportMapBuilder.Provider) {
+        LOGGER.debug("Adding provider: {}", provider)
         providers.add(provider)
     }
 

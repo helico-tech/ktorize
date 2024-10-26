@@ -6,16 +6,20 @@ import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
+import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import nl.helico.ktorize.html.renderingPipeline
 
 internal val name = "AssetMapper"
+
+internal val LOGGER = KtorSimpleLogger(name)
 
 class AssetMapperConfiguration {
     var basePackage: String = "assets"
     var remotePath: String = "/assets"
     var tagNames: MutableList<String> = mutableListOf("img", "script", "link", "a")
     var attributeNames: MutableList<String> = mutableListOf("src", "href")
+    var cacheDuration: Int = 31536000
 
     var factory: PluginBuilder<AssetMapperConfiguration>.() -> AssetMapper = { ->
         DefaultAssetMapper(
@@ -36,29 +40,49 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
 
     val assetMapper = pluginConfig.factory(this)
 
+    LOGGER.info("Configured AssetMapper: $assetMapper")
+    LOGGER.info("Base Package: ${pluginConfig.basePackage}")
+    LOGGER.info("Remote Path: ${pluginConfig.remotePath}")
+    LOGGER.info("Tag Names: ${pluginConfig.tagNames}")
+    LOGGER.info("Attribute Names: ${pluginConfig.attributeNames}")
+
+    application.attributes.put(AssetMapper.Key, assetMapper)
+
+    LOGGER.info("Registered AssetMapper under Application Attributes with key ${AssetMapper.Key}")
+
+    application.attributes.put(AssetMapperConfiguration.Key, pluginConfig)
+
+    LOGGER.info("Registered AssetMapperConfiguration under Application Attributes with key ${AssetMapperConfiguration.Key}")
+
     val transformers = listOf(
         CSSAssetTransformer(assetMapper)
     )
 
+    LOGGER.info("Registered Asset Transformers: $transformers")
+
     application.routing {
-        application.attributes.put(AssetMapper.Key, assetMapper)
-        application.attributes.put(AssetMapperConfiguration.Key, pluginConfig)
 
         get(assetMapper.pathRegex) {
-            val directoryName = call.parameters["directoryName"]!!
+            LOGGER.debug("Asset requested: ${call.request.uri}")
+            val directoryName = call.parameters["directoryName"]!!.removePrefix("/")
             val baseName = call.parameters["baseName"]!!
             val extension = call.parameters["extension"]!!
+
+            LOGGER.debug("Asset parts: $directoryName, $baseName, $extension")
+
             val actualPath = listOf(
                 pluginConfig.remotePath,
                 directoryName,
                 "$baseName.$extension"
             ).filterNot { it.isEmpty() }.joinToString("/")
 
+            LOGGER.debug("Redirecting to: $actualPath")
+
             call.pipelineCall.redirectInternally(actualPath)
         }
 
         staticResources(pluginConfig.remotePath, pluginConfig.basePackage) {
-            cacheControl { listOf(Immutable, CacheControl.MaxAge(31536000)) }
+            cacheControl { listOf(Immutable, CacheControl.MaxAge(pluginConfig.cacheDuration)) }
         }
     }
 
@@ -71,6 +95,7 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
         transformBody { data ->
             val transformer = transformers.firstOrNull { it.accepts(call, data) }
             if (transformer != null) {
+                LOGGER.debug("Transforming asset {} with transformer {}", call.request.uri, transformer)
                 val transformed = transformer.transform(call, data)
                 transformed
             } else {
