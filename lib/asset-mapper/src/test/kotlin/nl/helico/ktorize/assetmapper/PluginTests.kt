@@ -5,11 +5,12 @@ import io.ktor.client.statement.*
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import kotlin.test.Test
+import kotlin.test.assertContains
 
 class PluginTests {
 
     @Test
-    fun onCallResponse() = testApplication {
+    fun cssMappingTest() = testApplication {
         application {
             install(AssetMapperPlugin)
         }
@@ -18,6 +19,6 @@ class PluginTests {
 
         val body = response.bodyAsText()
 
-        println(body)
+        assertContains(body, "@import url(\"/assets/another-d41d8cd98f00b204e9800998ecf8427e.css\");")
     }
 }

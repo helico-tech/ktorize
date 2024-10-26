@@ -14,8 +14,6 @@ import nl.helico.ktorize.html.renderingPipeline
 
 internal val name = "AssetMapper"
 
-internal val LOGGER = KtorSimpleLogger(name)
-
 class AssetMapperConfiguration {
     var basePackage: String = "assets"
     var remotePath: String = "/assets"
@@ -40,6 +38,10 @@ class AssetMapperConfiguration {
 val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration() }) {
 
     val assetMapper = pluginConfig.factory(this)
+
+    val transformers = listOf(
+        CSSAssetTransformer(assetMapper)
+    )
 
     application.routing {
         application.attributes.put(AssetMapper.Key, assetMapper)
@@ -70,15 +72,13 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
 
     onCallRespond { call ->
         transformBody { data ->
-            if (data is LocalFileContent) {
-                val contentType = data.contentType
-                if (contentType.match(ContentType.Text.CSS)) {
-                    val contents = data.readFrom().readBuffer().readText()
-                    val transformed = contents.reversed()
-                    return@transformBody transformed
-                }
+            val transformer = transformers.firstOrNull { it.accepts(call, data) }
+            if (transformer != null) {
+                val transformed = transformer.transform(call, data)
+                transformed
+            } else {
+                data
             }
-            data
         }
     }
 }
