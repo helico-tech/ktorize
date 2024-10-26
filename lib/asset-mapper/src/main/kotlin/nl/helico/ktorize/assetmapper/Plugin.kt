@@ -4,11 +4,13 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
-import nl.helico.ktorize.html.hooks
+import io.ktor.utils.io.*
+import nl.helico.ktorize.html.renderingPipeline
 
 internal val name = "AssetMapper"
 
@@ -63,7 +65,21 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
 
     // add the rendering hook
     onCall { call ->
-        call.hooks.add(AssetMapperHook(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames))
+        call.renderingPipeline.addHook(AssetMapperHook(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames))
+    }
+
+    onCallRespond { call ->
+        transformBody { data ->
+            if (data is LocalFileContent) {
+                val contentType = data.contentType
+                if (contentType.match(ContentType.Text.CSS)) {
+                    val contents = data.readFrom().readBuffer().readText()
+                    val transformed = contents.reversed()
+                    return@transformBody transformed
+                }
+            }
+            data
+        }
     }
 }
 

@@ -7,4 +7,5 @@ dependencies {
     implementation(projects.lib.html)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.ktor.server.test.host)
 }

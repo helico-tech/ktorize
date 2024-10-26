@@ -3,7 +3,7 @@ package nl.helico.ktorize.hotwire.stimulus
 import io.ktor.server.application.*
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.AssetMapperConfiguration
-import nl.helico.ktorize.html.hooks
+import nl.helico.ktorize.html.renderingPipeline
 import nl.helico.ktorize.importmap.ImportMapBuilder
 
 internal val name = "HotwireStimulusPlugin"
@@ -37,7 +37,7 @@ val HotwireStimulusPlugin = createApplicationPlugin(name, { HotwireStimulusConfi
                 .forEach { (id, src) -> builder.addModuleSpecifier(id, src) }
         }
 
-        call.hooks.add(StimulusControllerAttributeHook(controllerRegistry))
-        call.hooks.add(StimulusSetupScriptsHook(StimulusInitScript(pluginConfig.controllerPrefix, controllerRegistry)))
+        call.renderingPipeline.addHook(StimulusControllerAttributeHook(controllerRegistry))
+        call.renderingPipeline.addHook(StimulusSetupScriptsHook(StimulusInitScript(pluginConfig.controllerPrefix, controllerRegistry)))
     }
 }

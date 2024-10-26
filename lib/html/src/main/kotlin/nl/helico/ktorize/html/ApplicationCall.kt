@@ -11,7 +11,7 @@ suspend fun ApplicationCall.respondHtml(
     status: HttpStatusCode = HttpStatusCode.OK,
     prettyPrint: Boolean = true,
     xhtmlCompatible: Boolean = false,
-    hooks: List<Hook> = this.hooks,
+    hooks: List<Hook> = this.renderingPipeline.hooks,
     block: HTML.() -> Unit
 ) {
     val text = buildDeferredHTML(prettyPrint, xhtmlCompatible, hooks, block)
@@ -22,11 +22,9 @@ suspend fun ApplicationCall.respondHtmlFragment(
     status: HttpStatusCode = HttpStatusCode.OK,
     prettyPrint: Boolean = true,
     xhtmlCompatible: Boolean = false,
-    hooks: List<Hook> = this.hooks,
+    hooks: List<Hook> = this.renderingPipeline.hooks,
     block: TagConsumer<*>.() -> Unit
 ) {
     val text = buildDeferredHTMLFragment(prettyPrint, xhtmlCompatible, hooks, {}, block)
     respond(TextContent(text, ContentType.Text.Html.withCharset(Charsets.UTF_8), status))
 }
-
-val ApplicationCall.hooks get() = attributes.computeIfAbsent(HookableTagConsumer.Hooks) { mutableListOf() }

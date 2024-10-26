@@ -3,7 +3,7 @@ package nl.helico.ktorize.hotwire.turbo
 import io.ktor.server.application.*
 import kotlinx.html.unsafe
 import nl.helico.ktorize.html.AddScriptHook
-import nl.helico.ktorize.html.hooks
+import nl.helico.ktorize.html.renderingPipeline
 import nl.helico.ktorize.importmap.ImportMapBuilder
 
 internal val name = "HotwireTurboPlugin"
@@ -30,6 +30,6 @@ val HotwireTurboPlugin = createApplicationPlugin(name, { HotwireTurboConfigurati
             }
         }
 
-        call.hooks.add(hook)
+        call.renderingPipeline.addHook(hook)
     }
 }
