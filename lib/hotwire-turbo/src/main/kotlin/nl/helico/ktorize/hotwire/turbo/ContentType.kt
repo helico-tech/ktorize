@@ -1,4 +1,4 @@
-package nl.helico.ktorize.html.hotwire.turbo
+package nl.helico.ktorize.hotwire.turbo
 
 import io.ktor.http.*
 

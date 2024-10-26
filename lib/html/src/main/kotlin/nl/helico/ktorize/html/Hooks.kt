@@ -4,37 +4,37 @@ import kotlinx.html.*
 
 interface Hook {
     interface Comment : Hook {
-        fun beforeComment(consumer: TagConsumer<*>, content: CharSequence): Boolean
-        fun afterComment(consumer: TagConsumer<*>, content: CharSequence)
+        fun beforeComment(consumer: DeferredTagConsumer<*>, content: CharSequence): Boolean
+        fun afterComment(consumer: DeferredTagConsumer<*>, content: CharSequence)
     }
 
     interface Content : Hook {
-        fun beforeContent(consumer: TagConsumer<*>, content: CharSequence): Boolean
-        fun afterContent(consumer: TagConsumer<*>, content: CharSequence)
+        fun beforeContent(consumer: DeferredTagConsumer<*>, content: CharSequence): Boolean
+        fun afterContent(consumer: DeferredTagConsumer<*>, content: CharSequence)
     }
 
     interface ContentEntity : Hook {
-        fun beforeContentEntity(consumer: TagConsumer<*>, entity: Entities): Boolean
-        fun afterContentEntity(consumer: TagConsumer<*>, entity: Entities)
+        fun beforeContentEntity(consumer: DeferredTagConsumer<*>, entity: Entities): Boolean
+        fun afterContentEntity(consumer: DeferredTagConsumer<*>, entity: Entities)
     }
 
     interface ContentUnsafe : Hook {
-        fun beforeContentUnsafe(consumer: TagConsumer<*>, block: Unsafe.() -> Unit): Boolean
-        fun afterContentUnsafe(consumer: TagConsumer<*>, block: Unsafe.() -> Unit)
+        fun beforeContentUnsafe(consumer: DeferredTagConsumer<*>, block: Unsafe.() -> Unit): Boolean
+        fun afterContentUnsafe(consumer: DeferredTagConsumer<*>, block: Unsafe.() -> Unit)
     }
 
     interface TagStart : Hook {
-        fun beforeTagStart(consumer: TagConsumer<*>, tag: Tag): Boolean
-        fun afterTagStart(consumer: TagConsumer<*>, tag: Tag)
+        fun beforeTagStart(consumer: DeferredTagConsumer<*>, tag: Tag): Boolean
+        fun afterTagStart(consumer: DeferredTagConsumer<*>, tag: Tag)
     }
 
     interface TagEnd : Hook {
-        fun beforeTagEnd(consumer: TagConsumer<*>, tag: Tag): Boolean
-        fun afterTagEnd(consumer: TagConsumer<*>, tag: Tag)
+        fun beforeTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag): Boolean
+        fun afterTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag)
     }
 
     interface Finalize : Hook {
-        fun beforeFinalize(consumer: TagConsumer<*>)
+        fun beforeFinalize(consumer: DeferredTagConsumer<*>)
     }
 }
 
@@ -44,10 +44,10 @@ class AddScriptHook(
     val crossorigin: ScriptCrossorigin? = null,
     val block: SCRIPT.() -> Unit = {}
 ) : Hook.TagEnd {
-    override fun beforeTagEnd(consumer: TagConsumer<*>, tag: Tag): Boolean {
+    override fun beforeTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag): Boolean {
         (tag as? HEAD)?.script(type, src, crossorigin, block)
         return true
     }
 
-    override fun afterTagEnd(consumer: TagConsumer<*>, tag: Tag) {}
+    override fun afterTagEnd(consumer: DeferredTagConsumer<*>, tag: Tag) {}
 }

@@ -8,22 +8,25 @@ import io.ktor.server.routing.*
 import kotlinx.html.*
 import nl.helico.ktorize.assetmapper.AssetMapperPlugin
 import nl.helico.ktorize.assetmapper.createMappedAssetRegex
-import nl.helico.ktorize.html.hotwire.turbo.HotwireTurboPlugin
-import nl.helico.ktorize.html.hotwire.turbo.TurboFrame
+import nl.helico.ktorize.hotwire.stimulus.HotwireStimulusPlugin
+import nl.helico.ktorize.hotwire.stimulus.stimulusController
+import nl.helico.ktorize.hotwire.turbo.HotwireTurboPlugin
+import nl.helico.ktorize.hotwire.turbo.TurboFrame
 import nl.helico.ktorize.html.respondHtml
+import nl.helico.ktorize.importmap.ImportMapPlugin
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
 
-        install(HotwireTurboPlugin)
         install(AssetMapperPlugin)
+        install(ImportMapPlugin)
+        install(HotwireTurboPlugin)
+        install(HotwireStimulusPlugin)
 
         routing {
-
             get("/") {
                 call.respondHtml {
-                    html {
-                        head {                        }
+                    head {}
                         body {
                             TurboFrame("foo") {
                                 h1 { + "Hello world" }
@@ -32,6 +35,19 @@ fun main() {
                             img(src = "/assets/deeper/donkey-2.jpg") {
                                 alt = "An image"
                             }
+                        }
+                    }
+            }
+
+            get("/stimulus") {
+                call.respondHtml {
+                    head {
+                        title { +"Hello, World!" }
+                    }
+                    body {
+                        div {
+                            stimulusController("hello")
+                            +"Hello, World!"
                         }
                     }
                 }

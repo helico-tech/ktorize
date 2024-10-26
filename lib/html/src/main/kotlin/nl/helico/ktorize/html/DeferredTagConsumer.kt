@@ -12,6 +12,10 @@ class DeferredTagConsumer<O>(
 
     private val deferred = mutableListOf<(TagConsumer<*>) -> Unit>()
 
+    fun defer(block: (TagConsumer<*>) -> Unit) {
+        deferred.add(block)
+    }
+
     override fun finalize(): O {
         deferred.forEach { it(downstream) }
         return downstream.finalize()

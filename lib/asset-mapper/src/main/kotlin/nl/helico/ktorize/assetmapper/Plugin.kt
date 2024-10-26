@@ -4,14 +4,15 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
-import nl.helico.ktorize.html.hooks
+import io.ktor.utils.io.*
+import nl.helico.ktorize.html.renderingPipeline
 
 internal val name = "AssetMapper"
-
-internal val LOGGER = KtorSimpleLogger(name)
 
 class AssetMapperConfiguration {
     var basePackage: String = "assets"
@@ -28,21 +29,24 @@ class AssetMapperConfiguration {
             )
         )
     }
+
+    companion object {
+        val Key = AttributeKey<AssetMapperConfiguration>("AssetMapperConfiguration")
+    }
 }
 
 val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration() }) {
 
-    val assetMapper = pluginConfig.factory(this).also { assetMapper ->
-//        if (assetMapper is AssetMapper.Preload) {
-//            assetMapper.preload().forEach { asset ->
-//                LOGGER.info("Mapped asset: $asset -> ${assetMapper.map(asset)}")
-//            }
-//        }
-    }
+    val assetMapper = pluginConfig.factory(this)
 
-    val hook = AssetMapperHook(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames)
+    val transformers = listOf(
+        CSSAssetTransformer(assetMapper)
+    )
 
     application.routing {
+        application.attributes.put(AssetMapper.Key, assetMapper)
+        application.attributes.put(AssetMapperConfiguration.Key, pluginConfig)
+
         get(assetMapper.pathRegex) {
             val directoryName = call.parameters["directoryName"]!!
             val baseName = call.parameters["baseName"]!!
@@ -63,7 +67,19 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
 
     // add the rendering hook
     onCall { call ->
-        call.hooks.add(hook)
+        call.renderingPipeline.addHook(AssetMapperHook(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames))
+    }
+
+    onCallRespond { call ->
+        transformBody { data ->
+            val transformer = transformers.firstOrNull { it.accepts(call, data) }
+            if (transformer != null) {
+                val transformed = transformer.transform(call, data)
+                transformed
+            } else {
+                data
+            }
+        }
     }
 }
 

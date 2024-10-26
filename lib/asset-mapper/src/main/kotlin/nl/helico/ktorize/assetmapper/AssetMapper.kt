@@ -53,7 +53,11 @@ class DefaultAssetMapper(
             val fileName = logicalPath.substringAfterLast('/')
             val directoryName = logicalPath.removeSuffix(fileName).removeSuffix("/")
 
-            val (baseName, extension) = fileName.split(".", limit = 2)
+            val parts = fileName.split(".")
+
+            val extension = parts.last()
+
+            val baseName = parts.dropLast(1).joinToString(".")
 
             val digest = asset.md5()
 
