@@ -17,7 +17,7 @@ class ControllerResolver(
     }
 
     private fun identifierToPath(identifier: String): String {
-        return identifier.replace("--", "/") + ".controller.js"
+        return identifier.replace("--", "/") + "-controller.js"
     }
 }
 

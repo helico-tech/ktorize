@@ -64,7 +64,7 @@ class DefaultAssetMapper(
             listOf(
                 baseUrl,
                 directoryName,
-                "$baseName-$digest.$extension"
+                "$baseName.$digest.$extension"
             ).filterNot { it.isEmpty() }.joinToString("/")
         }
     }

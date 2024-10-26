@@ -12,7 +12,7 @@ class HotwireTurboConfiguration {
     var src: String = "https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/+esm"
 }
 
-val HotwireTurboPlugin = createApplicationPlugin(name, { HotwireTurboConfiguration() }) {
+val HotwireTurboPlugin = createRouteScopedPlugin(name, { HotwireTurboConfiguration() }) {
 
     onCall { call ->
 
@@ -25,7 +25,7 @@ val HotwireTurboPlugin = createApplicationPlugin(name, { HotwireTurboConfigurati
                 raw(
                     """
                     import * as Turbo from "@hotwired/turbo"
-                    """
+                    """.trimIndent()
                 )
             }
         }

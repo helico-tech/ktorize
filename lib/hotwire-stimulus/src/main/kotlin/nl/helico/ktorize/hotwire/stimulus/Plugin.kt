@@ -13,7 +13,7 @@ class HotwireStimulusConfiguration {
     var src: String = "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/dist/stimulus.min.js"
 }
 
-val HotwireStimulusPlugin = createApplicationPlugin(name, { HotwireStimulusConfiguration() }) {
+val HotwireStimulusPlugin = createRouteScopedPlugin(name, { HotwireStimulusConfiguration() }) {
 
     onCall { call ->
         val assetMapper = call.application.attributes.getOrNull(AssetMapper.Key) ?: error("AssetMapper not found")

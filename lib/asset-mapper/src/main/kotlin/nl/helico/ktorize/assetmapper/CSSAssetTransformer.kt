@@ -5,6 +5,7 @@ import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.utils.io.*
 import kotlinx.io.Buffer
 import kotlinx.io.readLine
@@ -14,7 +15,7 @@ class CSSAssetTransformer(
     private val assetMapper: AssetMapper
 ) : AssetTransformer {
 
-    val cssImportUrlRegex = Regex("""@import\s+url\((['"]?)(.*?)\1\)""")
+    val cssImportRegex = Regex("""@import\s+(url\((['"]?)(.*?)\2\)|(['"])(.*?)\4)""")
 
     override fun accepts(call: PipelineCall, data: Any): Boolean {
         return data is OutgoingContent.ReadChannelContent && data.contentType?.match(ContentType.Text.CSS) ?: false && assetMapper.matches(call.request.uri)
@@ -29,18 +30,24 @@ class CSSAssetTransformer(
         while (!channel.isClosedForRead) {
             var line = channel.readUTF8Line() ?: break
 
-            val matches = cssImportUrlRegex.findAll(line)
+            val matches = cssImportRegex.findAll(line)
 
             for (match in matches) {
-                val url = match.groupValues[2]
+                val url = match.groupValues[3].ifEmpty { match.groupValues[5] }
                 val relativeUrl = currentUrl.parent.resolve(url).toString()
                 val mappedUrl = assetMapper.map(relativeUrl)
 
-                line = line.replace(url, mappedUrl)
+                if (match.groupValues[1].startsWith("url")) {
+                    line = line.replace(url, mappedUrl)
+                } else {
+                    line = line.replace("\"$url\"", "url(\"$mappedUrl\")")
+                }
             }
 
             output.appendLine(line)
         }
+
+        call.response.header(HttpHeaders.ContentType, ContentType.Text.CSS.toString())
 
         return output.toString()
     }

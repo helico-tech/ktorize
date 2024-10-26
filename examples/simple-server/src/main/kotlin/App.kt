@@ -24,30 +24,21 @@ fun main() {
         install(HotwireStimulusPlugin)
 
         routing {
+
             get("/") {
-                call.respondHtml {
-                    head {}
-                        body {
-                            TurboFrame("foo") {
-                                h1 { + "Hello world" }
-                            }
-
-                            img(src = "/assets/deeper/donkey-2.jpg") {
-                                alt = "An image"
-                            }
-                        }
-                    }
-            }
-
-            get("/stimulus") {
                 call.respondHtml {
                     head {
                         title { +"Hello, World!" }
+                        link(rel = "stylesheet", href = "/assets/css/styles.css")
                     }
                     body {
                         div {
                             stimulusController("hello")
                             +"Hello, World!"
+                        }
+
+                        img(src = "/assets/deeper/donkey-2.jpg") {
+                            alt = "An image"
                         }
                     }
                 }

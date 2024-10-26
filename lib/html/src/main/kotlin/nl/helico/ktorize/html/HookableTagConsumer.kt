@@ -10,11 +10,8 @@ import kotlinx.html.org.w3c.dom.events.Event
 class HookableTagConsumer<O>(
     val hooks: List<Hook>,
     val downstream: DeferredTagConsumer<O>,
+    val attributes: Attributes = Attributes()
 ) : TagConsumer<O> {
-
-    companion object {
-        val Hooks = AttributeKey<MutableList<Hook>>("HookableTagConsumer.Hooks")
-    }
 
     override fun finalize(): O {
         applyHooks<Hook.Finalize>(
