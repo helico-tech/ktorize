@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass.set("nl.bumastemra.portal.ServerKt")
+    mainClass.set("nl.bumastemra.portal.AppKt")
 
     val environment = System.getenv("APP_ENV")
 
