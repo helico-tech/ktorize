@@ -6,6 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Private
 
 @Serializable()
 data class ImportMap(
@@ -42,18 +43,22 @@ interface ImportMapBuilder {
     fun build(): ImportMap
 }
 
-class ImportMapBuilderImpl : ImportMapBuilder {
+class ImportMapBuilderImpl(
+    private val silent: Boolean = false
+) : ImportMapBuilder {
     private val imports = mutableMapOf<String, String>()
     private val providers = mutableListOf<ImportMapBuilder.Provider>()
     private val LOGGER = KtorSimpleLogger("ImportMapBuilderImpl")
 
+    constructor() : this(silent = false)
+
     override fun addModuleSpecifier(moduleSpecifier: String, url: String) {
-        LOGGER.debug("Adding module specifier: $moduleSpecifier -> $url")
+        if (!silent) LOGGER.debug("Adding module specifier: $moduleSpecifier -> $url")
         imports[moduleSpecifier] = url
     }
 
     override fun addProvider(provider: ImportMapBuilder.Provider) {
-        LOGGER.debug("Adding provider: {}", provider)
+        if (!silent) LOGGER.debug("Adding provider: {}", provider)
         providers.add(provider)
     }
 
