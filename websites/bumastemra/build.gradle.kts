@@ -31,6 +31,9 @@ dependencies {
     implementation(projects.lib.html)
     implementation(projects.lib.hotwireStimulus)
     implementation(projects.lib.hotwireTurbo)
+
+    // DI
+    implementation(libs.kodein.di)
 }
 
 kotlin {

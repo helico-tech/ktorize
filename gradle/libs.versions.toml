@@ -4,8 +4,11 @@ kotlinx-serialization = "1.7.3"
 kotlinx-html = "0.11.0"
 ktor = "3.0.0"
 logback-classic =  "1.4.14"
+kodein-di = "7.22.0"
 
 [libraries]
+kodein-di = { group = "org.kodein.di", name = "kodein-di", version.ref = "kodein-di" }
+
 kotlinx-html = { group = "org.jetbrains.kotlinx", name = "kotlinx-html", version.ref = "kotlinx-html" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }

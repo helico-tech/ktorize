@@ -8,7 +8,7 @@ internal val name = "ImportMapPlugin"
 
 internal val LOGGER = KtorSimpleLogger(name)
 
-val ImportMapPlugin = createApplicationPlugin(name) {
+val ImportMapPlugin = createRouteScopedPlugin(name) {
 
     onCall { call ->
         val builder = ImportMapBuilderImpl()
