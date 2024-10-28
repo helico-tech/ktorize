@@ -12,9 +12,9 @@ suspend fun ApplicationCall.respondHtml(
     prettyPrint: Boolean = true,
     xhtmlCompatible: Boolean = false,
     hooks: List<Hook> = this.renderingPipeline.hooks,
-    block: HTML.() -> Unit
+    view: HTMLView
 ) {
-    val text = buildDeferredHTML(prettyPrint, xhtmlCompatible, hooks, block)
+    val text = buildDeferredHTML(prettyPrint, xhtmlCompatible, hooks, view)
     respond(TextContent(text, ContentType.Text.Html.withCharset(Charsets.UTF_8), status))
 }
 
@@ -23,8 +23,8 @@ suspend fun ApplicationCall.respondHtmlFragment(
     prettyPrint: Boolean = true,
     xhtmlCompatible: Boolean = false,
     hooks: List<Hook> = this.renderingPipeline.hooks,
-    block: TagConsumer<*>.() -> Unit
+    view: HTMLFragment
 ) {
-    val text = buildDeferredHTMLFragment(prettyPrint, xhtmlCompatible, hooks, {}, block)
+    val text = buildDeferredHTMLFragment(prettyPrint, xhtmlCompatible, hooks, {}, view)
     respond(TextContent(text, ContentType.Text.Html.withCharset(Charsets.UTF_8), status))
 }

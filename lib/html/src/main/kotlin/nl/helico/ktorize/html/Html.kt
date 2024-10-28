@@ -5,12 +5,15 @@ import kotlinx.html.TagConsumer
 import kotlinx.html.html
 import kotlinx.html.stream.HTMLStreamBuilder
 
+typealias HTMLFragment = TagConsumer<*>.() -> Unit
+typealias HTMLView = HTML.() -> Unit
+
 fun buildDeferredHTMLFragment(
     prettyPrint: Boolean = false,
     xhtmlCompatible: Boolean = false,
     hooks: List<Hook> = emptyList(),
     stringBuilderBlock: StringBuilder.() -> Unit = {},
-    block: TagConsumer<*>.() -> Unit
+    block: HTMLFragment
 ): String {
     val downstream = StringBuilder().also(stringBuilderBlock)
 
@@ -36,7 +39,7 @@ fun buildDeferredHTML(
     prettyPrint: Boolean = false,
     xhtmlCompatible: Boolean = false,
     hooks: List<Hook> = emptyList(),
-    block: HTML.() -> Unit
+    block: HTMLView
 ): String {
     return buildDeferredHTMLFragment(prettyPrint, xhtmlCompatible, hooks, stringBuilderBlock = {
         append("<!DOCTYPE html>")
