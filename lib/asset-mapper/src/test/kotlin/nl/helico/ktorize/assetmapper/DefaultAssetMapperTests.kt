@@ -13,6 +13,6 @@ class DefaultAssetMapperTests {
 
         val result = assetMapper.map("/baseurl/file1.txt")
 
-        assertEquals("/baseurl/file1-2f03b03637bf162937793f756f0f1583.txt", result)
+        assertEquals("/baseurl/file1.2f03b03637bf162937793f756f0f1583.txt", result)
     }
 }

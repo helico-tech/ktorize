@@ -51,7 +51,7 @@ class StimulusTests {
     <title>Hello, World!</title>
     <script type="importmap">{
     "imports": {
-        "/controllers/hello": "/assets/controllers/hello.controller-692a6c14f25caa744a757225a84bc4a2.js",
+        "/controllers/hello": "/assets/controllers/hello-controller.692a6c14f25caa744a757225a84bc4a2.js",
         "@hotwired/stimulus": "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/dist/stimulus.min.js"
     }
 }</script>

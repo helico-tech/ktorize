@@ -11,7 +11,7 @@ suspend fun ApplicationCall.respondHtml(
     status: HttpStatusCode = HttpStatusCode.OK,
     prettyPrint: Boolean = true,
     xhtmlCompatible: Boolean = false,
-    renderPasses: List<RenderPass> = mutableListOf(),
+    renderPasses: List<RenderPass> = renderContext.renderPasses,
     view: HTMLView
 ) {
     val text = buildDeferredHTML(prettyPrint, xhtmlCompatible, renderPasses, view)
@@ -22,9 +22,11 @@ suspend fun ApplicationCall.respondHtmlFragment(
     status: HttpStatusCode = HttpStatusCode.OK,
     prettyPrint: Boolean = true,
     xhtmlCompatible: Boolean = false,
-    renderPasses: List<RenderPass> = mutableListOf(),
+    renderPasses: List<RenderPass> = renderContext.renderPasses,
     view: HTMLFragment
 ) {
     val text = buildDeferredHTMLFragment(prettyPrint, xhtmlCompatible, renderPasses, {}, view)
     respond(TextContent(text, ContentType.Text.Html.withCharset(Charsets.UTF_8), status))
 }
+
+val ApplicationCall.renderContext get() = attributes.computeIfAbsent(RenderContext.Key) { RenderContext() }

@@ -2,6 +2,7 @@ package nl.helico.ktorize.html
 
 import kotlinx.html.HTML
 import kotlinx.html.TagConsumer
+import kotlinx.html.consumers.delayed
 import kotlinx.html.html
 import kotlinx.html.stream.HTMLStreamBuilder
 
@@ -22,7 +23,7 @@ fun buildDeferredHTMLFragment(
             out = downstream,
             prettyPrint = prettyPrint,
             xhtmlCompatible = xhtmlCompatible
-        )
+        ).delayed()
     )
 
     val consumer = MultiPassConsumer()
