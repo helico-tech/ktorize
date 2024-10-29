@@ -11,18 +11,17 @@ class AssetMapperRenderPass(
 ) : RenderPass {
 
     override fun before(action: TagConsumerAction, consumer: TagConsumer<*>): Boolean {
-        if (action !is TagConsumerAction.TagStart) return true
+        return true
+    }
 
-        if (!tagNames.contains(action.tag.tagName)) return true
+    override fun after(action: TagConsumerAction, consumer: TagConsumer<*>) {
+        if (action !is TagConsumerAction.TagStart) return
+
+        if (!tagNames.contains(action.tag.tagName)) return
 
         attributeNames.forEach {attributeName ->
             val src = action.tag.attributes[attributeName]
             if (src != null && assetMapper.matches(src)) action.tag.attributes[attributeName] = assetMapper.map(src)
         }
-
-        return true
-    }
-
-    override fun after(action: TagConsumerAction, consumer: TagConsumer<*>) {
     }
 }

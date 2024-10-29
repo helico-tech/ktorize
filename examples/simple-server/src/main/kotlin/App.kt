@@ -15,7 +15,6 @@ import nl.helico.ktorize.importmap.ImportMapPlugin
 import org.kodein.di.bindSingleton
 import org.kodein.di.direct
 import org.kodein.di.instance
-import org.kodein.di.provider
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
