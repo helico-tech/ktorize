@@ -2,6 +2,7 @@ package nl.helico.ktorize.html
 
 import kotlinx.html.HTML
 import kotlinx.html.TagConsumer
+import kotlinx.html.consumers.delayed
 import kotlinx.html.html
 import kotlinx.html.stream.HTMLStreamBuilder
 
@@ -11,26 +12,29 @@ typealias HTMLView = HTML.() -> Unit
 fun buildDeferredHTMLFragment(
     prettyPrint: Boolean = false,
     xhtmlCompatible: Boolean = false,
-    hooks: List<Hook> = emptyList(),
+    renderPasses: List<RenderPass> = emptyList(),
     stringBuilderBlock: StringBuilder.() -> Unit = {},
     block: HTMLFragment
 ): String {
     val downstream = StringBuilder().also(stringBuilderBlock)
 
-    val htmlBuilder = HTMLStreamBuilder(
-        out = downstream,
-        prettyPrint = prettyPrint,
-        xhtmlCompatible = xhtmlCompatible
+    val downstreamRenderPass = DownstreamRenderPass(
+        downstream = HTMLStreamBuilder(
+            out = downstream,
+            prettyPrint = prettyPrint,
+            xhtmlCompatible = xhtmlCompatible
+        ).delayed()
     )
 
-    val consumer = HookableTagConsumer(
-        hooks = hooks,
-        downstream = DeferredTagConsumer(
-            downstream = htmlBuilder
-        )
-    )
+    val consumer = MultiPassConsumer()
 
     consumer.block()
+
+    renderPasses.forEach { renderPass ->
+        consumer.applyRenderPass(renderPass)
+    }
+
+    consumer.applyRenderPass(downstreamRenderPass)
 
     return downstream.toString()
 }
@@ -38,10 +42,10 @@ fun buildDeferredHTMLFragment(
 fun buildDeferredHTML(
     prettyPrint: Boolean = false,
     xhtmlCompatible: Boolean = false,
-    hooks: List<Hook> = emptyList(),
+    renderPasses: List<RenderPass> = emptyList(),
     block: HTMLView
 ): String {
-    return buildDeferredHTMLFragment(prettyPrint, xhtmlCompatible, hooks, stringBuilderBlock = {
+    return buildDeferredHTMLFragment(prettyPrint, xhtmlCompatible, renderPasses, stringBuilderBlock = {
         append("<!DOCTYPE html>")
     }) {
         html(block = block)

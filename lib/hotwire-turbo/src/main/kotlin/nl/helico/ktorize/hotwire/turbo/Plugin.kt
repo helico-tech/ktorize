@@ -2,8 +2,8 @@ package nl.helico.ktorize.hotwire.turbo
 
 import io.ktor.server.application.*
 import kotlinx.html.unsafe
-import nl.helico.ktorize.html.AddScriptHook
-import nl.helico.ktorize.html.renderingPipeline
+import nl.helico.ktorize.html.AddScriptRenderPass
+import nl.helico.ktorize.html.renderContext
 import nl.helico.ktorize.importmap.ImportMapBuilder
 
 internal val name = "HotwireTurboPlugin"
@@ -20,7 +20,7 @@ val HotwireTurboPlugin = createRouteScopedPlugin(name, { HotwireTurboConfigurati
 
         importMapBuilder.addModuleSpecifier("@hotwired/turbo", pluginConfig.src)
 
-        val hook = AddScriptHook(type = "module") {
+        val renderPass = AddScriptRenderPass(type = "module") {
             unsafe {
                 raw(
                     """
@@ -30,6 +30,6 @@ val HotwireTurboPlugin = createRouteScopedPlugin(name, { HotwireTurboConfigurati
             }
         }
 
-        call.renderingPipeline.addHook(hook)
+        call.renderContext.addRenderPass(renderPass)
     }
 }

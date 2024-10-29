@@ -8,7 +8,7 @@ import io.ktor.server.routing.*
 import io.ktor.util.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
-import nl.helico.ktorize.html.renderingPipeline
+import nl.helico.ktorize.html.renderContext
 
 internal val name = "AssetMapper"
 
@@ -88,7 +88,8 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
 
     // add the rendering hook
     onCall { call ->
-        call.renderingPipeline.addHook(AssetMapperHook(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames))
+        val pass = AssetMapperRenderPass(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames)
+        call.renderContext.addRenderPass(pass)
     }
 
     onCallRespond { call ->

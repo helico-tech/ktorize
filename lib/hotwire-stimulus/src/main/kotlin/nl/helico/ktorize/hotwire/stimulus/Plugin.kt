@@ -2,9 +2,11 @@ package nl.helico.ktorize.hotwire.stimulus
 
 import io.ktor.server.application.*
 import io.ktor.util.logging.*
+import kotlinx.html.unsafe
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.AssetMapperConfiguration
-import nl.helico.ktorize.html.renderingPipeline
+import nl.helico.ktorize.html.AddScriptRenderPass
+import nl.helico.ktorize.html.renderContext
 import nl.helico.ktorize.importmap.ImportMapBuilder
 
 internal val name = "HotwireStimulusPlugin"
@@ -42,7 +44,15 @@ val HotwireStimulusPlugin = createRouteScopedPlugin(name, { HotwireStimulusConfi
                 .forEach { (id, src) -> builder.addModuleSpecifier(id, src) }
         }
 
-        call.renderingPipeline.addHook(StimulusControllerAttributeHook(controllerRegistry))
-        call.renderingPipeline.addHook(StimulusSetupScriptsHook(StimulusInitScript(pluginConfig.controllerPrefix, controllerRegistry)))
+        val initScript = StimulusInitScript(pluginConfig.controllerPrefix, controllerRegistry)
+
+        val setupScriptPass = AddScriptRenderPass(type = "module") {
+            unsafe {
+                +initScript.script()
+            }
+        }
+
+        call.renderContext.addRenderPass(StimulusControllerRenderPass(controllerRegistry))
+        call.renderContext.addRenderPass(setupScriptPass)
     }
 }

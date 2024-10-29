@@ -2,7 +2,7 @@ package nl.helico.ktorize.importmap
 
 import io.ktor.server.application.*
 import io.ktor.util.logging.*
-import nl.helico.ktorize.html.renderingPipeline
+import nl.helico.ktorize.html.renderContext
 
 internal val name = "ImportMapPlugin"
 
@@ -16,6 +16,8 @@ val ImportMapPlugin = createRouteScopedPlugin(name) {
         call.attributes.put(ImportMapBuilder.Key, builder)
         LOGGER.debug("Registering ImportMapBuilder to call attributes with key: {}", ImportMapBuilder.Key)
 
-        call.renderingPipeline.addHook(AddImportMapHook(builder))
+        val pass = AddImportMapRenderPass(builder)
+
+        call.renderContext.addRenderPass(pass)
     }
 }

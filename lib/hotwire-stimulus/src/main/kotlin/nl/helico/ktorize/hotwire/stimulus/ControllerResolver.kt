@@ -1,8 +1,5 @@
 package nl.helico.ktorize.hotwire.stimulus
 
-import kotlinx.io.files.Path
-import java.net.URL
-
 class ControllerResolver(
     private val basePackage: String,
     private val remotePath: String,
