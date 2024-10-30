@@ -37,6 +37,10 @@ class CSSAssetTransformer(
 
             for (match in matches) {
                 val url = match.groupValues[3].ifEmpty { match.groupValues[5] }
+
+                if (url.startsWith("data:")) continue
+                if (url.startsWith("http")) continue
+
                 val relativeUrl = currentUrl.parent.resolve(url).toString()
                 val mappedUrl = assetMapper.map(relativeUrl)
 

@@ -1,1 +1,12 @@
 @import "variables.css";
+@import "components.css";
+
+html {
+    font-family: var(--font-family), serif;
+    background-color: var(--color-background);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
