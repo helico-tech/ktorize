@@ -1,5 +1,8 @@
-package nl.helico.ktorize.assetmapper2
+package nl.helico.ktorize.assetmapper2.handlers
 
+import nl.helico.ktorize.assetmapper2.Asset
+import nl.helico.ktorize.assetmapper2.AssetPathTransformer
+import nl.helico.ktorize.assetmapper2.MD5AssetDigester
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals

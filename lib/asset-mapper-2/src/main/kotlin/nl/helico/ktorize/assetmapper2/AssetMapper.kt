@@ -1,5 +1,7 @@
 package nl.helico.ktorize.assetmapper2
 
+import nl.helico.ktorize.assetmapper2.handlers.AssetHandler
+import nl.helico.ktorize.assetmapper2.handlers.DefaultHandler
 import java.nio.file.Path
 
 class AssetMapper(
