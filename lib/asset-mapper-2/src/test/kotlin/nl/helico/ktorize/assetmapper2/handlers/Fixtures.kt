@@ -36,6 +36,18 @@ object Fixtures {
             @import "simple-circular-1.css";
         """.trimIndent()
 
+        val `multi-level-circular-1` = """
+            @import "multi-level-circular-2.css";
+        """.trimIndent()
+
+        val `multi-level-circular-2` = """
+            @import "multi-level-circular-3.css";
+        """.trimIndent()
+
+        val `multi-level-circular-3` = """
+            @import "multi-level-circular-1.css";
+        """.trimIndent()
+
         val `multi-level-dependency-1` = """
             @import "multi-level-dependency-2.css";
             @import "multi-level-dependency-4.css";

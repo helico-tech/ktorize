@@ -71,6 +71,20 @@ class CSSHandlerTests {
         }
     }
 
+    @Test fun `multi-level-circular`() {
+        val handler = CSSHandler()
+        val mapper = createMapper(handler,
+            "multi-level-circular-1.css" to Fixtures.CSS.`multi-level-circular-1`,
+            "multi-level-circular-2.css" to Fixtures.CSS.`multi-level-circular-2`,
+            "multi-level-circular-3.css" to Fixtures.CSS.`multi-level-circular-3`
+        )
+
+        val input = mapper.reader.readAsset(Path("multi-level-circular-1.css"))!!
+        assertFailsWith<IllegalStateException>("Circular dependency detected") {
+            handler.handle(input, mapper)
+        }
+    }
+
     @Test fun `multi level dependency`() {
         val handler = CSSHandler()
         val mapper = createMapper(handler,
