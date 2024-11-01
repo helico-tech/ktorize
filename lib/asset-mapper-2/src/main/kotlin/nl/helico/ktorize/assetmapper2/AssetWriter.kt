@@ -35,3 +35,11 @@ class StringAssetWriter(
         }
     }
 }
+
+class FileAssetWriter(
+    private val baseDir: Path
+) : AssetWriter {
+    override fun writer(path: Path): Writer {
+        return baseDir.resolve(path).toFile().writer()
+    }
+}

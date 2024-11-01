@@ -15,3 +15,12 @@ class StringAssetReader(
         return data[path]?.let { return StringReader(it) }
     }
 }
+
+class FileAssetReader(
+    private val baseDir: Path
+) : AssetReader {
+    override fun read(path: Path): Reader? {
+        val file = baseDir.resolve(path)
+        return if (file.toFile().exists()) file.toFile().reader() else null
+    }
+}
