@@ -3,6 +3,7 @@ package nl.helico.ktorize.assetmapper2.handlers
 import io.ktor.http.*
 import nl.helico.ktorize.assetmapper2.Asset
 import nl.helico.ktorize.assetmapper2.AssetMapper
+import nl.helico.ktorize.assetmapper2.Context
 import java.nio.file.Path
 import kotlin.io.path.Path
 
@@ -15,8 +16,9 @@ class CSSHandler : BaseHandler() {
         return input.contentType.match(ContentType.Text.CSS)
     }
 
-    override fun handle(input: Asset.Input, mapper: AssetMapper): Asset.Output {
-        val handledAssetPaths = mutableSetOf(input.path)
+    override fun handle(input: Asset.Input, mapper: AssetMapper, context: Context): Asset.Output {
+        val dependencyTracker = context.computeIfAbsent(DependencyTracker.Key) { DependencyTracker() }
+
         val dependencies = mutableListOf<Asset.Output>()
         val transformedLines = mutableListOf<String>()
 
@@ -37,11 +39,9 @@ class CSSHandler : BaseHandler() {
             }
 
             val path = (input.path.parent ?: Path(".")).resolve(relativePath).normalize()
+            if (!dependencyTracker.addDependency(input.path, path)) error("Circular dependency detected")
 
-            if (handledAssetPaths.contains(path)) error("Circular dependency detected: $path")
-            handledAssetPaths.add(path)
-
-            val asset = mapper.map(path)
+            val asset = mapper.map(path, context)
             val digest = mapper.digester.digest(asset.lines)
             val transformedPath = mapper.pathTransformer.transform(asset.path, digest)
             val transformedLine = line.replace(relativePath.fileName.toString(), transformedPath.fileName.toString())
@@ -51,7 +51,7 @@ class CSSHandler : BaseHandler() {
         }
 
 
-        val baseOutput = super.handle(input, mapper)
+        val baseOutput = super.handle(input, mapper, context)
         return Asset.Output(baseOutput.path, transformedLines, dependencies)
     }
 

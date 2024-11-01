@@ -27,5 +27,13 @@ object Fixtures {
                 --primary-color: red;
             }
         """.trimIndent()
+
+        val `simple-circular-1` = """
+            @import "simple-circular-2.css";
+        """.trimIndent()
+
+        val `simple-circular-2` = """
+            @import "simple-circular-1.css";
+        """.trimIndent()
     }
 }

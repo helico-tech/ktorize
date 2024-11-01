@@ -7,6 +7,8 @@ import nl.helico.ktorize.assetmapper2.writers.NullAssetWriter
 import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
+import kotlin.test.assertFailsWith
 
 class CSSHandlerTests {
 
@@ -56,6 +58,18 @@ class CSSHandlerTests {
         assertEquals(Fixtures.CSS.`single-dependency`.lines(), output.dependencies[0].lines)
     }
 
+    @Test fun `basic circular import`() {
+        val handler = CSSHandler()
+        val mapper = createMapper(handler,
+            "simple-circular-1.css" to Fixtures.CSS.`simple-circular-1`,
+            "simple-circular-2.css" to Fixtures.CSS.`simple-circular-2`
+        )
+
+        val input = mapper.reader.readAsset(Path("simple-circular-1.css"))!!
+        assertFailsWith<IllegalStateException>("Circular dependency detected") {
+            handler.handle(input, mapper)   
+        }
+    }
 
     private fun createMapper(handler: CSSHandler, vararg data: Pair<String, String>): AssetMapper {
         return AssetMapper(
