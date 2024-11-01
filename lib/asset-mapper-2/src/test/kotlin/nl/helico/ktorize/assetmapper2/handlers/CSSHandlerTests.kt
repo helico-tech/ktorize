@@ -7,7 +7,6 @@ import nl.helico.ktorize.assetmapper2.writers.NullAssetWriter
 import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 
 class CSSHandlerTests {

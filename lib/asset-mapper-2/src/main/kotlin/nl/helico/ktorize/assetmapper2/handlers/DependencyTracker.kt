@@ -8,17 +8,37 @@ class DependencyTracker {
         val Key = AttributeKey<DependencyTracker>("DependencyTracker")
     }
 
-    private val dependencies = mutableMapOf<Path, Set<Path>>()
+    private val parents = mutableMapOf<Path, Set<Path>>()
 
     fun addDependency(from: Path, to: Path): Boolean {
-        val (normalizedTo, normalizedFrom) = to.normalize() to from.normalize()
-        if (dependencies[normalizedTo]?.contains(normalizedFrom) == true) {
-            return false
+        return addNormalizedDependency(from.normalize(), to.normalize())
+    }
+
+    private fun addNormalizedDependency(from: Path, to: Path): Boolean {
+        if (hasCircularDependency(from, to)) return false
+
+        parents.compute(to) { _, v ->
+            (v ?: emptySet()).plus(from)
         }
 
-        dependencies.compute(normalizedFrom) { _, v ->
-            (v ?: emptySet()).plus(normalizedTo)
-        }
         return true
+    }
+
+    private fun hasCircularDependency(from: Path, to: Path): Boolean {
+        if (from == to) return true
+
+        val allParents = mutableSetOf(from)
+        val remaining = ArrayDeque(allParents)
+
+        while (remaining.isNotEmpty()) {
+            val current = remaining.removeFirst()
+            val currentParents = parents[current] ?: emptySet()
+            allParents.addAll(currentParents)
+
+            if (allParents.contains(to)) return true
+
+            remaining.addAll(currentParents)
+        }
+        return false
     }
 }
