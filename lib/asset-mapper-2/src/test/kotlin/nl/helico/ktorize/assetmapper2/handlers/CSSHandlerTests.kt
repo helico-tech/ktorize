@@ -2,19 +2,21 @@ package nl.helico.ktorize.assetmapper2.handlers
 
 import nl.helico.ktorize.assetmapper2.Asset
 import nl.helico.ktorize.assetmapper2.AssetMapper
+import nl.helico.ktorize.assetmapper2.MD5AssetDigester
 import nl.helico.ktorize.assetmapper2.readers.StringAssetReader
 import nl.helico.ktorize.assetmapper2.writers.NullAssetWriter
 import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
 
 class CSSHandlerTests {
 
     @Test
     fun `test accepts`() {
         val handler = CSSHandler()
-        val input = Asset.Input(path = Path("test.css"), lines = emptyList())
+        val input = Asset.Input(path = Path("test.css"), lines = emptyList(), digest = "123")
         assert(handler.accepts(input))
     }
 
@@ -25,7 +27,7 @@ class CSSHandlerTests {
             "no-imports.css" to Fixtures.CSS.`no-imports`
         )
 
-        val input = mapper.reader.readAsset(Path("no-imports.css"))!!
+        val input = mapper.reader.readAsset(Path("no-imports.css"), MD5AssetDigester)!!
         val output = handler.handle(input, mapper)
         assertEquals(Fixtures.CSS.`no-imports`.lines(), output.lines)
         assertEquals("no-imports.c8c1acc1b093fe24b8beb00623cd2501.css", output.path.fileName.toString())
@@ -37,7 +39,7 @@ class CSSHandlerTests {
             "external-import.css" to Fixtures.CSS.`external-import`
         )
 
-        val input = mapper.reader.readAsset(Path("external-import.css"))!!
+        val input = mapper.reader.readAsset(Path("external-import.css"), MD5AssetDigester)!!
         val output = handler.handle(input, mapper)
         assertEquals(Fixtures.CSS.`external-import`.lines(), output.lines)
         assertEquals("external-import.f519ba618ca8f54d57fe2bcd5f2a60b6.css", output.path.fileName.toString())
@@ -50,11 +52,12 @@ class CSSHandlerTests {
             "single-dependency.css" to Fixtures.CSS.`single-dependency`
         )
 
-        val input = mapper.reader.readAsset(Path("simple-direct-import.css"))!!
-        val output = handler.handle(input, mapper)
+        val inputAsset = mapper.reader.readAsset(Path("simple-direct-import.css"), MD5AssetDigester)!!
+        val outputAsset = handler.handle(inputAsset, mapper)
 
-        assertEquals("@import \"single-dependency.7c79483c2157b38e21ba27f0478d8bf3.7c79483c2157b38e21ba27f0478d8bf3.css\";", output.lines[0])
-        assertEquals(Fixtures.CSS.`single-dependency`.lines(), output.dependencies[0].lines)
+        assertNotEquals(inputAsset.digest, outputAsset.digest)
+        assertEquals("@import \"single-dependency.7c79483c2157b38e21ba27f0478d8bf3.css\";", outputAsset.lines[0])
+        assertEquals(Fixtures.CSS.`single-dependency`.lines(), outputAsset.dependencies[0].lines)
     }
 
     @Test fun `basic circular import`() {
@@ -64,7 +67,7 @@ class CSSHandlerTests {
             "simple-circular-2.css" to Fixtures.CSS.`simple-circular-2`
         )
 
-        val input = mapper.reader.readAsset(Path("simple-circular-1.css"))!!
+        val input = mapper.reader.readAsset(Path("simple-circular-1.css"), MD5AssetDigester)!!
         assertFailsWith<IllegalStateException>("Circular dependency detected") {
             handler.handle(input, mapper)
         }
@@ -78,7 +81,7 @@ class CSSHandlerTests {
             "multi-level-circular-3.css" to Fixtures.CSS.`multi-level-circular-3`
         )
 
-        val input = mapper.reader.readAsset(Path("multi-level-circular-1.css"))!!
+        val input = mapper.reader.readAsset(Path("multi-level-circular-1.css"), MD5AssetDigester)!!
         assertFailsWith<IllegalStateException>("Circular dependency detected") {
             handler.handle(input, mapper)
         }
@@ -93,17 +96,25 @@ class CSSHandlerTests {
             "multi-level-dependency-4.css" to Fixtures.CSS.`multi-level-dependency-4`
         )
 
-        val input = mapper.reader.readAsset(Path("multi-level-dependency-1.css"))!!
+        val input = mapper.reader.readAsset(Path("multi-level-dependency-1.css"), MD5AssetDigester)!!
         val output = handler.handle(input, mapper)
 
         assertEquals(2, output.dependencies.size)
-
         assertEquals(2, output.dependencies[0].dependencies.size)
         assertEquals(0, output.dependencies[1].dependencies.size)
-
         assertEquals(1, output.dependencies[0].dependencies[0].dependencies.size)
         assertEquals(0, output.dependencies[0].dependencies[1].dependencies.size)
+    }
 
+    @Test fun `other url`() {
+        val handler = CSSHandler()
+        val mapper = createMapper(handler,
+            "other-urls.css" to Fixtures.CSS.`other-urls`
+        )
+
+        val mapped = mapper.map(Path("other-urls.css"))
+        assertEquals(Fixtures.CSS.`other-urls`.lines(), mapped.lines)
+        assertEquals(0, mapped.dependencies.size)
     }
 
     private fun createMapper(handler: CSSHandler, vararg data: Pair<String, String>): AssetMapper {

@@ -16,7 +16,7 @@ class DefaultHandlerTests {
     @Test
     fun `accepts returns true`() {
         val handler = DefaultHandler()
-        val input = Asset.Input(Path("test"), listOf("data"))
+        val input = Asset.Input(Path("test"), listOf("data"), "123")
         val result = handler.accepts(input)
         assertTrue(result)
     }
@@ -27,7 +27,7 @@ class DefaultHandlerTests {
         val path = Path("/some/dir/test.txt")
 
         val handler = DefaultHandler()
-        val input = Asset.Input(path, data)
+        val input = Asset.Input(path, data, "123")
 
         val digester = MD5AssetDigester
         val pathTransformer = AssetPathTransformer()
@@ -44,7 +44,7 @@ class DefaultHandlerTests {
         val path = Path("/some/dir/test")
 
         val handler = DefaultHandler()
-        val input = Asset.Input(path, data)
+        val input = Asset.Input(path, data, "123")
         val digester = MD5AssetDigester
         val pathTransformer = AssetPathTransformer()
         val mapper = AssetMapper(NullAssetReader, NullAssetWriter, listOf(), digester, pathTransformer)

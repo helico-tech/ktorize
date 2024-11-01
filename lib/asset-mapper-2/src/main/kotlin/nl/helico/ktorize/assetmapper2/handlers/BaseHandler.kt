@@ -7,6 +7,12 @@ import nl.helico.ktorize.assetmapper2.Context
 abstract class BaseHandler : AssetHandler {
     override fun handle(input: Asset.Input, mapper: AssetMapper, context: Context): Asset.Output {
         val digest = mapper.digester.digest(input.lines)
-        return Asset.Output(mapper.pathTransformer.transform(input.path, digest), input.lines, emptyList())
+        return Asset.Output(
+            path = mapper.getTransformedPath(input),
+            lines = input.lines,
+            input = input,
+            digest = digest,
+            dependencies = emptyList()
+        )
     }
 }

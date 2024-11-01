@@ -64,5 +64,17 @@ object Fixtures {
 
         val `multi-level-dependency-4` = """
         """.trimIndent()
+
+        val `other-urls` = """
+           body {
+                background-image: url("https://example.com/banner.png");
+            }
+        """.trimIndent()
+
+        val `missing-url` = """
+            body {
+                background-image: url("missing.png");
+            }
+        """.trimIndent()
     }
 }

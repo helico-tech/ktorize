@@ -16,7 +16,16 @@ interface AssetMapper {
     val pathTransformer: AssetPathTransformer
 
     fun map(path: Path, context: Context = Attributes()): Asset.Output
+
     fun write(output: Asset.Output)
+
+    fun getTransformedPath(path: Path, digest: String): Path {
+        return pathTransformer.transform(path, digest)
+    }
+
+    fun getTransformedPath(asset: Asset.Input) = getTransformedPath(asset.path, digester.digest(asset.lines))
+
+    fun getTransformedPath(asset: Asset.Output) = getTransformedPath(asset.input.path, asset.digest)
 
     companion object {
         operator fun invoke(
@@ -37,7 +46,7 @@ class AssetMapperImpl(
     override val pathTransformer: AssetPathTransformer= AssetPathTransformer(),
 ): AssetMapper  {
     override fun map(path: Path, context: Context): Asset.Output {
-        val input = reader.readAsset(path) ?: error("Invalid path $path")
+        val input = reader.readAsset(path, digester) ?: error("Invalid path $path")
         val handler = handlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
         val output = handler.handle(input, this, context)
 
