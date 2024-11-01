@@ -1,6 +1,6 @@
 package nl.helico.ktorize.assetmapper2.writers
 
-import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,7 +12,7 @@ class FileAssetWriterTests {
     fun `writer returns writer for path`() {
         val baseDir = createTempDirectory()
         val assetWriter = FileAssetWriter(baseDir)
-        val writer = assetWriter.writer(Path.of("test.txt"))
+        val writer = assetWriter.writer(Path("test.txt"))
         assertNotNull(writer)
 
         writer.use {

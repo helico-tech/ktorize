@@ -6,31 +6,42 @@ import nl.helico.ktorize.assetmapper2.readers.AssetReader
 import nl.helico.ktorize.assetmapper2.writers.AssetWriter
 import java.nio.file.Path
 
-class AssetMapper(
-    private val assetReader: AssetReader,
-    private val assetWriter: AssetWriter,
-    private val assetHandlers: List<AssetHandler>,
-    private val assetDigester: AssetDigester = MD5AssetDigester,
-    private val assetPathTransformer: AssetPathTransformer= AssetPathTransformer(),
-)  {
-    fun map(path: Path): Asset.Output {
-        val data = assetReader.read(path)?.readLines() ?: error("Invalid path $path")
-        val input = Asset.Input(path, data)
-        val handler = assetHandlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
-        val context = AssetHandler.Context(assetReader, assetDigester, assetPathTransformer)
-        val output = handler.handle(input, context)
+interface AssetMapper {
+    val reader: AssetReader
+    val writer: AssetWriter
+    val digester: AssetDigester
+    val pathTransformer: AssetPathTransformer
+
+    fun map(path: Path): Asset.Output
+    fun write(output: Asset.Output)
+
+    companion object {
+        operator fun invoke(
+            reader: AssetReader,
+            writer: AssetWriter,
+            handlers: List<AssetHandler>,
+            digester: AssetDigester = MD5AssetDigester,
+            pathTransformer: AssetPathTransformer= AssetPathTransformer(),
+        ): AssetMapper = AssetMapperImpl(reader, writer, handlers, digester, pathTransformer)
+    }
+}
+
+class AssetMapperImpl(
+    override val reader: AssetReader,
+    override val writer: AssetWriter,
+    val handlers: List<AssetHandler>,
+    override val digester: AssetDigester = MD5AssetDigester,
+    override val pathTransformer: AssetPathTransformer= AssetPathTransformer(),
+): AssetMapper  {
+    override fun map(path: Path): Asset.Output {
+        val input = reader.readAsset(path) ?: error("Invalid path $path")
+        val handler = handlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
+        val output = handler.handle(input, this)
 
         return output
     }
 
-    fun write(output: Asset.Output) {
-        val writer = assetWriter.writer(output.path) ?: error("Invalid path ${output.path}")
-        writer.use {
-            output.data.forEach { line ->
-                it.appendLine(line)
-            }
-        }
-
-        output.dependencies.forEach { write(it) }
+    override fun write(output: Asset.Output) {
+        writer.writeAsset(output, includingDependencies = true)
     }
 }
