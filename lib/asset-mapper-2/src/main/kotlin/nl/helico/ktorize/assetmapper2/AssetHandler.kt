@@ -1,10 +1,8 @@
 package nl.helico.ktorize.assetmapper2
 
-import java.nio.file.Path
-
 interface AssetHandler {
     fun accepts(input: Asset.Input): Boolean
-    fun handle(input: Asset.Input): Asset.Output
+    fun handle(input: Asset.Input, digester: AssetDigester, pathTransformer: AssetPathTransformer): Asset.Output
 }
 
 class DefaultHandler : AssetHandler {
@@ -12,7 +10,7 @@ class DefaultHandler : AssetHandler {
         return true
     }
 
-    override fun handle(input: Asset.Input): Asset.Output {
-        return Asset.Output(input.path, input.data)
+    override fun handle(input: Asset.Input, digester: AssetDigester, pathTransformer: AssetPathTransformer): Asset.Output {
+        return Asset.Output(input.path, input.data, emptyList())
     }
 }
