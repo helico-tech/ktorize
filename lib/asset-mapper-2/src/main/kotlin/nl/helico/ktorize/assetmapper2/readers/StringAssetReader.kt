@@ -11,6 +11,6 @@ class StringAssetReader(
     constructor(vararg data: Pair<String, String>) : this(data.map { Path(it.first) to it.second }.toMap())
 
     override fun read(path: Path): Reader? {
-        return data[path]?.let { return StringReader(it) }
+        return data[path.normalize()]?.let { return StringReader(it) }
     }
 }

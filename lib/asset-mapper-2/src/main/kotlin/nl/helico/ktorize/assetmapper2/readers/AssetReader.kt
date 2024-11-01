@@ -8,8 +8,8 @@ interface AssetReader {
     fun read(path: Path): Reader?
 
     fun readAsset(path: Path): Asset.Input? {
-        val data = read(path)?.readLines() ?: return null
-        return Asset.Input(path, data)
+        val data = read(path.normalize())?.readLines() ?: return null
+        return Asset.Input(path.normalize(), data)
     }
 }
 

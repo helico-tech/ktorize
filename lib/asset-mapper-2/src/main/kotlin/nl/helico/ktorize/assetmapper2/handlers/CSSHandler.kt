@@ -36,7 +36,7 @@ class CSSHandler : BaseHandler() {
                 return@forEach
             }
 
-            val path = input.path.resolve(relativePath)
+            val path = (input.path.parent ?: Path(".")).resolve(relativePath).normalize()
 
             if (handledAssetPaths.contains(path)) error("Circular dependency detected: $path")
             handledAssetPaths.add(path)
