@@ -59,6 +59,35 @@ class CSSHandlerTests {
         assertEquals(Fixtures.CSS.`single-dependency`.lines(), outputAsset.dependencies[0].lines)
     }
 
+    @Test fun `simple direct import in subdirectory`() {
+        val handler = CSSHandler()
+        val mapper = createMapper(handler,
+            "/assets/css/simple-direct-import.css" to Fixtures.CSS.`simple-direct-import`,
+            "/assets/css/single-dependency.css" to Fixtures.CSS.`single-dependency`
+        )
+
+        val inputAsset = mapper.read(Path("/assets/css/simple-direct-import.css"))!!
+        val outputAsset = handler.handle(inputAsset, mapper)
+
+        assertNotEquals(inputAsset.digest, outputAsset.digest)
+        assertEquals("@import \"single-dependency.7c79483c2157b38e21ba27f0478d8bf3.css\";", outputAsset.lines[0])
+        assertEquals(Fixtures.CSS.`single-dependency`.lines(), outputAsset.dependencies[0].lines)
+    }
+
+    @Test fun `simple direct import in other directory`() {
+        val handler = CSSHandler()
+        val mapper = createMapper(handler,
+            "/assets/css/main.css" to Fixtures.CSS.`dependency-other-dir1`,
+            "/assets/dependency.css" to Fixtures.CSS.`dependency-other-dir2`
+        )
+
+        val inputAsset = mapper.read(Path("/assets/css/main.css"))!!
+        val outputAsset = handler.handle(inputAsset, mapper)
+
+        assertNotEquals(inputAsset.digest, outputAsset.digest)
+        assertEquals("@import \"../dependency.d41d8cd98f00b204e9800998ecf8427e.css\";", outputAsset.lines[0])
+    }
+
     @Test fun `basic circular import`() {
         val handler = CSSHandler()
         val mapper = createMapper(handler,
@@ -116,14 +145,16 @@ class CSSHandlerTests {
         assertEquals(1, mapped.dependencies.size)
     }
 
-//    @Test fun `missing`() {
-//        val handler = CSSHandler()
-//        val mapper = createMapper(handler,
-//            "missing-url.css" to Fixtures.CSS.`missing-url`
-//        )
-//
-//        val mapped = mapper.map(Path("missing-url.css"))
-//    }
+    @Test fun missing() {
+        val handler = CSSHandler()
+        val mapper = createMapper(handler,
+            "missing-url.css" to Fixtures.CSS.`missing-url`
+        )
+
+        assertFailsWith<IllegalStateException> {
+            mapper.map(Path("missing-url.css"))
+        }
+    }
 
     private fun createMapper(handler: CSSHandler, vararg data: Pair<String, String>): AssetMapper {
         return AssetMapper(

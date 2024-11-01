@@ -82,5 +82,12 @@ object Fixtures {
                 background-image: url("missing.png");
             }
         """.trimIndent()
+
+        val `dependency-other-dir1` = """
+            @import "../dependency.css";
+        """.trimIndent()
+
+        val `dependency-other-dir2` = """
+        """.trimIndent()
     }
 }
