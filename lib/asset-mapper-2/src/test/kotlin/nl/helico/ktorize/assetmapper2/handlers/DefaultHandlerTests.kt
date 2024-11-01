@@ -35,7 +35,7 @@ class DefaultHandlerTests {
 
         val output = handler.handle(input, mapper)
 
-        assertEquals(Path("/some/dir/test.8d777f385d3dfec8815d20f7496026dc.txt"), output.path)
+        assertEquals(Path("/some/dir/test.123.txt"), output.path)
     }
 
     @Test
@@ -51,6 +51,6 @@ class DefaultHandlerTests {
 
         val output = handler.handle(input, mapper)
 
-        assertEquals(Path("/some/dir/test.8d777f385d3dfec8815d20f7496026dc"), output.path)
+        assertEquals(Path("/some/dir/test.123"), output.path)
     }
 }

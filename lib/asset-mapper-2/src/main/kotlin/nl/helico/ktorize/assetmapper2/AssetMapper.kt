@@ -10,22 +10,15 @@ import java.nio.file.Path
 typealias Context = Attributes
 
 interface AssetMapper {
-    val reader: AssetReader
-    val writer: AssetWriter
-    val digester: AssetDigester
-    val pathTransformer: AssetPathTransformer
+    fun read(path: Path): Asset.Input?
+
+    fun digest(lines: List<String>): String
 
     fun map(path: Path, context: Context = Attributes()): Asset.Output
 
     fun write(output: Asset.Output)
 
-    fun getTransformedPath(path: Path, digest: String): Path {
-        return pathTransformer.transform(path, digest)
-    }
-
-    fun getTransformedPath(asset: Asset.Input) = getTransformedPath(asset.path, digester.digest(asset.lines))
-
-    fun getTransformedPath(asset: Asset.Output) = getTransformedPath(asset.input.path, asset.digest)
+    fun getTransformedPath(asset: Asset): Path
 
     companion object {
         operator fun invoke(
@@ -39,18 +32,31 @@ interface AssetMapper {
 }
 
 class AssetMapperImpl(
-    override val reader: AssetReader,
-    override val writer: AssetWriter,
-    val handlers: List<AssetHandler>,
-    override val digester: AssetDigester = MD5AssetDigester,
-    override val pathTransformer: AssetPathTransformer= AssetPathTransformer(),
+    private val reader: AssetReader,
+    private val writer: AssetWriter,
+    private val handlers: List<AssetHandler>,
+    private val digester: AssetDigester = MD5AssetDigester,
+    private val pathTransformer: AssetPathTransformer= AssetPathTransformer(),
 ): AssetMapper  {
+    override fun read(path: Path): Asset.Input? {
+        return reader.readAsset(path, digester)
+    }
+
+    override fun digest(lines: List<String>): String {
+        return digester.digest(lines)
+    }
+
     override fun map(path: Path, context: Context): Asset.Output {
         val input = reader.readAsset(path, digester) ?: error("Invalid path $path")
         val handler = handlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
         val output = handler.handle(input, this, context)
 
         return output
+    }
+
+    override fun getTransformedPath(asset: Asset) = when (asset) {
+        is Asset.Input -> pathTransformer.transform(asset.path, asset.digest)
+        is Asset.Output -> asset.path
     }
 
     override fun write(output: Asset.Output) {

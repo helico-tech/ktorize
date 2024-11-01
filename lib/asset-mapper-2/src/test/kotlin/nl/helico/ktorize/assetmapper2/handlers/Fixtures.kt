@@ -69,7 +69,13 @@ object Fixtures {
            body {
                 background-image: url("https://example.com/banner.png");
             }
+            
+            .container {
+                background-image: url("container.png");
+            }
         """.trimIndent()
+
+        val `container-png` = """PNGDATA"""
 
         val `missing-url` = """
             body {

@@ -2,7 +2,6 @@ package nl.helico.ktorize.assetmapper2.handlers
 
 import nl.helico.ktorize.assetmapper2.Asset
 import nl.helico.ktorize.assetmapper2.AssetMapper
-import nl.helico.ktorize.assetmapper2.MD5AssetDigester
 import nl.helico.ktorize.assetmapper2.readers.StringAssetReader
 import nl.helico.ktorize.assetmapper2.writers.NullAssetWriter
 import kotlin.io.path.Path
@@ -27,7 +26,7 @@ class CSSHandlerTests {
             "no-imports.css" to Fixtures.CSS.`no-imports`
         )
 
-        val input = mapper.reader.readAsset(Path("no-imports.css"), MD5AssetDigester)!!
+        val input = mapper.read(Path("no-imports.css"))!!
         val output = handler.handle(input, mapper)
         assertEquals(Fixtures.CSS.`no-imports`.lines(), output.lines)
         assertEquals("no-imports.c8c1acc1b093fe24b8beb00623cd2501.css", output.path.fileName.toString())
@@ -39,7 +38,7 @@ class CSSHandlerTests {
             "external-import.css" to Fixtures.CSS.`external-import`
         )
 
-        val input = mapper.reader.readAsset(Path("external-import.css"), MD5AssetDigester)!!
+        val input = mapper.read(Path("external-import.css"))!!
         val output = handler.handle(input, mapper)
         assertEquals(Fixtures.CSS.`external-import`.lines(), output.lines)
         assertEquals("external-import.f519ba618ca8f54d57fe2bcd5f2a60b6.css", output.path.fileName.toString())
@@ -52,7 +51,7 @@ class CSSHandlerTests {
             "single-dependency.css" to Fixtures.CSS.`single-dependency`
         )
 
-        val inputAsset = mapper.reader.readAsset(Path("simple-direct-import.css"), MD5AssetDigester)!!
+        val inputAsset = mapper.read(Path("simple-direct-import.css"))!!
         val outputAsset = handler.handle(inputAsset, mapper)
 
         assertNotEquals(inputAsset.digest, outputAsset.digest)
@@ -67,7 +66,7 @@ class CSSHandlerTests {
             "simple-circular-2.css" to Fixtures.CSS.`simple-circular-2`
         )
 
-        val input = mapper.reader.readAsset(Path("simple-circular-1.css"), MD5AssetDigester)!!
+        val input = mapper.read(Path("simple-circular-1.css"))!!
         assertFailsWith<IllegalStateException>("Circular dependency detected") {
             handler.handle(input, mapper)
         }
@@ -81,7 +80,7 @@ class CSSHandlerTests {
             "multi-level-circular-3.css" to Fixtures.CSS.`multi-level-circular-3`
         )
 
-        val input = mapper.reader.readAsset(Path("multi-level-circular-1.css"), MD5AssetDigester)!!
+        val input = mapper.read(Path("multi-level-circular-1.css"))!!
         assertFailsWith<IllegalStateException>("Circular dependency detected") {
             handler.handle(input, mapper)
         }
@@ -96,7 +95,7 @@ class CSSHandlerTests {
             "multi-level-dependency-4.css" to Fixtures.CSS.`multi-level-dependency-4`
         )
 
-        val input = mapper.reader.readAsset(Path("multi-level-dependency-1.css"), MD5AssetDigester)!!
+        val input = mapper.read(Path("multi-level-dependency-1.css"))!!
         val output = handler.handle(input, mapper)
 
         assertEquals(2, output.dependencies.size)
@@ -109,13 +108,22 @@ class CSSHandlerTests {
     @Test fun `other url`() {
         val handler = CSSHandler()
         val mapper = createMapper(handler,
-            "other-urls.css" to Fixtures.CSS.`other-urls`
+            "other-urls.css" to Fixtures.CSS.`other-urls`,
+            "container.png" to Fixtures.CSS.`container-png`
         )
 
         val mapped = mapper.map(Path("other-urls.css"))
-        assertEquals(Fixtures.CSS.`other-urls`.lines(), mapped.lines)
-        assertEquals(0, mapped.dependencies.size)
+        assertEquals(1, mapped.dependencies.size)
     }
+
+//    @Test fun `missing`() {
+//        val handler = CSSHandler()
+//        val mapper = createMapper(handler,
+//            "missing-url.css" to Fixtures.CSS.`missing-url`
+//        )
+//
+//        val mapped = mapper.map(Path("missing-url.css"))
+//    }
 
     private fun createMapper(handler: CSSHandler, vararg data: Pair<String, String>): AssetMapper {
         return AssetMapper(
