@@ -15,7 +15,12 @@ object AssetPathTransformerImpl : AssetPathTransformer {
     override fun transform(input: Path, digest: String): Path {
         val fileName = input.fileName.toString()
         val extension = input.extension
-        val baseName = fileName.substring(0, fileName.length - extension.length - 1)
-        return input.resolveSibling("$baseName.$digest.$extension")
+        val baseName = when {
+            extension.isEmpty() -> fileName
+            else -> fileName.removeSuffix(".$extension")
+        }
+
+        val parts = listOf(baseName, digest, extension).filterNot { it.isEmpty() }
+        return input.resolveSibling(parts.joinToString("."))
     }
 }

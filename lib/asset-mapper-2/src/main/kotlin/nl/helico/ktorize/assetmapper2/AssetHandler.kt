@@ -11,6 +11,7 @@ class DefaultHandler : AssetHandler {
     }
 
     override fun handle(input: Asset.Input, digester: AssetDigester, pathTransformer: AssetPathTransformer): Asset.Output {
-        return Asset.Output(input.path, input.data, emptyList())
+        val digest = digester.digest(input.data)
+        return Asset.Output(pathTransformer.transform(input.path, digest), input.data, emptyList())
     }
 }
