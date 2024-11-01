@@ -2,6 +2,8 @@ package nl.helico.ktorize.assetmapper2
 
 import nl.helico.ktorize.assetmapper2.handlers.AssetHandler
 import nl.helico.ktorize.assetmapper2.handlers.DefaultHandler
+import nl.helico.ktorize.assetmapper2.readers.AssetReader
+import nl.helico.ktorize.assetmapper2.writers.AssetWriter
 import java.nio.file.Path
 
 class AssetMapper(
@@ -14,10 +16,9 @@ class AssetMapper(
     fun map(path: Path): Asset.Output {
         val data = assetReader.read(path)?.readLines() ?: error("Invalid path $path")
         val input = Asset.Input(path, data)
-
         val handler = assetHandlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
-
-        val output = handler.handle(input, assetDigester, assetPathTransformer)
+        val context = AssetHandler.Context(assetReader, assetDigester, assetPathTransformer)
+        val output = handler.handle(input, context)
 
         return output
     }

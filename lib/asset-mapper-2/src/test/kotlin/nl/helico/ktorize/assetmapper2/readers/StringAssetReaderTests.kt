@@ -1,4 +1,4 @@
-package nl.helico.ktorize.assetmapper2
+package nl.helico.ktorize.assetmapper2.readers
 
 import java.nio.file.Path
 import kotlin.test.Test

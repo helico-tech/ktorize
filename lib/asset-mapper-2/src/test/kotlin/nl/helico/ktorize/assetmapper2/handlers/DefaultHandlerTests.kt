@@ -3,7 +3,9 @@ package nl.helico.ktorize.assetmapper2.handlers
 import nl.helico.ktorize.assetmapper2.Asset
 import nl.helico.ktorize.assetmapper2.AssetPathTransformer
 import nl.helico.ktorize.assetmapper2.MD5AssetDigester
+import nl.helico.ktorize.assetmapper2.readers.NullAssetReader
 import java.nio.file.Path
+import java.util.logging.Handler
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -25,9 +27,12 @@ class DefaultHandlerTests {
 
         val handler = DefaultHandler()
         val input = Asset.Input(path, data)
+
         val digester = MD5AssetDigester
         val pathTransformer = AssetPathTransformer()
-        val output = handler.handle(input, digester, pathTransformer)
+        val context = AssetHandler.Context(NullAssetReader, digester, pathTransformer)
+
+        val output = handler.handle(input, context)
 
         assertEquals(Path.of("/some/dir/test.8d777f385d3dfec8815d20f7496026dc.txt"), output.path)
     }
@@ -41,7 +46,9 @@ class DefaultHandlerTests {
         val input = Asset.Input(path, data)
         val digester = MD5AssetDigester
         val pathTransformer = AssetPathTransformer()
-        val output = handler.handle(input, digester, pathTransformer)
+        val context = AssetHandler.Context(NullAssetReader, digester, pathTransformer)
+
+        val output = handler.handle(input, context)
 
         assertEquals(Path.of("/some/dir/test.8d777f385d3dfec8815d20f7496026dc"), output.path)
     }

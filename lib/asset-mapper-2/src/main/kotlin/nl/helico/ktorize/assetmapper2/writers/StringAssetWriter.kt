@@ -1,12 +1,8 @@
-package nl.helico.ktorize.assetmapper2
+package nl.helico.ktorize.assetmapper2.writers
 
 import java.io.StringWriter
 import java.io.Writer
 import java.nio.file.Path
-
-interface AssetWriter {
-    fun writer(path: Path): Writer?
-}
 
 class StringAssetWriter(
     private val data: MutableMap<Path, String>
@@ -33,13 +29,5 @@ class StringAssetWriter(
                 writer.write(cbuf, off, len)
             }
         }
-    }
-}
-
-class FileAssetWriter(
-    private val baseDir: Path
-) : AssetWriter {
-    override fun writer(path: Path): Writer {
-        return baseDir.resolve(path).toFile().writer()
     }
 }
