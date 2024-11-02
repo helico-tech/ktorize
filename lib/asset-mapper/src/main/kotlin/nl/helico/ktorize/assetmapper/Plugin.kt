@@ -6,6 +6,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
 import io.ktor.util.logging.*
+import io.ktor.utils.io.core.*
 import nl.helico.ktorize.assetmapper.handlers.CSSHandler
 import nl.helico.ktorize.assetmapper.readers.ResourceAssetReader
 import nl.helico.ktorize.assetmapper.readers.WebAssetReader
@@ -65,9 +66,9 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
                 is AssetMapper.MapResult.Error -> call.respond(HttpStatusCode.InternalServerError, asset.error.message ?: "")
                 is AssetMapper.MapResult.Mapped -> {
                     call.response.headers.append(HttpHeaders.CacheControl, cacheControl.joinToString(", "))
-                    call.respondText(
-                        text = asset.output.content,
-                        contentType = asset.output.contentType,
+                    call.respondSource(
+                        source = asset.output.source,
+                        contentType = asset.output.contentType
                     )
                 }
             }

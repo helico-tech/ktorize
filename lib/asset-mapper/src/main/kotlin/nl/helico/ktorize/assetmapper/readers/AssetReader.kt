@@ -1,16 +1,17 @@
 package nl.helico.ktorize.assetmapper.readers
 
+import io.ktor.utils.io.core.*
+import kotlinx.io.Source
 import nl.helico.ktorize.assetmapper.Asset
 import nl.helico.ktorize.assetmapper.AssetDigester
-import java.io.Reader
 import java.nio.file.Path
 
 interface AssetReader {
-    fun read(path: Path): Reader?
+    fun read(path: Path): Source?
 
     fun readAsset(path: Path, digester: AssetDigester): Asset.Input? {
-        val content = read(path.normalize())?.readText() ?: return null
-        return Asset.Input(path.normalize(), content = content, digest = digester.digest(content))
+        val source = read(path.normalize()) ?: return null
+        return Asset.Input(path.normalize(), source = source, digest = digester.digest(source))
     }
 }
 

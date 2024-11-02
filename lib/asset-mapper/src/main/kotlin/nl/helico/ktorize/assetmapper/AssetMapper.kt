@@ -1,6 +1,7 @@
 package nl.helico.ktorize.assetmapper
 
 import io.ktor.util.*
+import kotlinx.io.Source
 import nl.helico.ktorize.assetmapper.handlers.AssetHandler
 import nl.helico.ktorize.assetmapper.handlers.DefaultHandler
 import nl.helico.ktorize.assetmapper.readers.AssetReader
@@ -11,7 +12,7 @@ typealias Context = Attributes
 interface AssetMapper {
     fun read(path: Path): Asset.Input?
 
-    fun digest(content: String): String
+    fun digest(content: Source): String
 
     fun map(path: Path, context: Context = Attributes()): MapResult
 
@@ -25,7 +26,7 @@ interface AssetMapper {
 
     sealed interface MapResult {
         data object NotFound: MapResult
-        data class Mapped(val path: Path, val output: Asset.Output): MapResult
+        data class Mapped(val output: Asset.Output): MapResult
         data class Error(val path: Path, val error: Throwable): MapResult
     }
 
@@ -52,7 +53,7 @@ class AssetMapperImpl(
         return reader.readAsset(path, digester)
     }
 
-    override fun digest(content: String): String {
+    override fun digest(content: Source): String {
         return digester.digest(content)
     }
 
@@ -61,7 +62,7 @@ class AssetMapperImpl(
         val result = kotlin.runCatching {
             val handler = handlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
             val output = handler.handle(input, this, context)
-            AssetMapper.MapResult.Mapped(path, output)
+            AssetMapper.MapResult.Mapped(output)
         }
 
         return when {

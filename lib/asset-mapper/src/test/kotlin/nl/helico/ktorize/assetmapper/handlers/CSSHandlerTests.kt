@@ -1,5 +1,7 @@
 package nl.helico.ktorize.assetmapper.handlers
 
+import io.ktor.utils.io.*
+import kotlinx.io.Buffer
 import nl.helico.ktorize.assetmapper.Asset
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.readers.StringAssetReader
@@ -11,7 +13,7 @@ class CSSHandlerTests {
     @Test
     fun `test accepts`() {
         val handler = CSSHandler()
-        val input = Asset.Input(path = Path("test.css"), content = "", digest = "123")
+        val input = Asset.Input(path = Path("test.css"), source = Buffer(), digest = "123")
         assert(handler.accepts(input))
     }
 
@@ -24,7 +26,7 @@ class CSSHandlerTests {
 
         val input = mapper.read(Path("no-imports.css"))!!
         val output = handler.handle(input, mapper)
-        assertEquals(Fixtures.CSS.`no-imports`, output.content)
+        assertEquals(Fixtures.CSS.`no-imports`, output.source.readText())
         assertEquals("no-imports.c8c1acc1b093fe24b8beb00623cd2501.css", output.path.fileName.toString())
     }
 
@@ -36,7 +38,7 @@ class CSSHandlerTests {
 
         val input = mapper.read(Path("external-import.css"))!!
         val output = handler.handle(input, mapper)
-        assertEquals(Fixtures.CSS.`external-import`, output.content)
+        assertEquals(Fixtures.CSS.`external-import`, output.source.readText())
         assertEquals("external-import.f519ba618ca8f54d57fe2bcd5f2a60b6.css", output.path.fileName.toString())
     }
 
@@ -51,8 +53,8 @@ class CSSHandlerTests {
         val outputAsset = handler.handle(inputAsset, mapper)
 
         assertNotEquals(inputAsset.digest, outputAsset.digest)
-        assertEquals("@import \"single-dependency.7c79483c2157b38e21ba27f0478d8bf3.css\";", outputAsset.content.lines()[0])
-        assertEquals(Fixtures.CSS.`single-dependency`, outputAsset.dependencies[0].content)
+        assertEquals("@import \"single-dependency.7c79483c2157b38e21ba27f0478d8bf3.css\";", outputAsset.source.readText().lines()[0])
+        assertEquals(Fixtures.CSS.`single-dependency`, outputAsset.dependencies[0].source.readText())
     }
 
     @Test fun `simple direct import in subdirectory`() {
@@ -66,8 +68,8 @@ class CSSHandlerTests {
         val outputAsset = handler.handle(inputAsset, mapper)
 
         assertNotEquals(inputAsset.digest, outputAsset.digest)
-        assertEquals("@import \"single-dependency.7c79483c2157b38e21ba27f0478d8bf3.css\";", outputAsset.content.lines()[0])
-        assertEquals(Fixtures.CSS.`single-dependency`, outputAsset.dependencies[0].content)
+        assertEquals("@import \"single-dependency.7c79483c2157b38e21ba27f0478d8bf3.css\";", outputAsset.source.readText().lines()[0])
+        assertEquals(Fixtures.CSS.`single-dependency`, outputAsset.dependencies[0].source.readText())
     }
 
     @Test fun `simple direct import in other directory`() {
@@ -81,7 +83,7 @@ class CSSHandlerTests {
         val outputAsset = handler.handle(inputAsset, mapper)
 
         assertNotEquals(inputAsset.digest, outputAsset.digest)
-        assertEquals("@import \"../dependency.d41d8cd98f00b204e9800998ecf8427e.css\";", outputAsset.content.lines()[0])
+        assertEquals("@import \"../dependency.d41d8cd98f00b204e9800998ecf8427e.css\";", outputAsset.source.readText().lines()[0])
     }
 
     @Test fun `basic circular import`() {

@@ -2,11 +2,16 @@ package nl.helico.ktorize.assetmapper.handlers
 
 import io.ktor.http.*
 import io.ktor.util.logging.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
+import kotlinx.io.Buffer
+import kotlinx.io.writeString
 import nl.helico.ktorize.assetmapper.Asset
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.Context
 import java.nio.file.Path
 import kotlin.io.path.Path
+import kotlin.text.toByteArray
 
 class CSSHandler(
     val strict: Boolean = true
@@ -26,7 +31,9 @@ class CSSHandler(
         val dependencies = mutableListOf<Asset.Output>()
         val transformedLines = mutableListOf<String>()
 
-        input.content.lines().forEach { line ->
+        val lines = input.source.readText().lines()
+
+        lines.forEach { line ->
             val url = listOf(urlRegex, importDirectRegex).firstNotNullOfOrNull { regex -> regex.find(line)?.groupValues?.get(2) }
             if (url == null) {
                 transformedLines.add(line)
@@ -59,11 +66,19 @@ class CSSHandler(
         }
 
         val content = transformedLines.joinToString(System.lineSeparator())
+        val source = Buffer().apply {
+            writeString(content)
+        }
+
         return super.handle(
-            input = input.copy(content = content),
+            input = input.copy(
+                source = source,
+                digest = mapper.digest(source)
+            ),
             mapper = mapper,
-            context = context).copy(
-            content = content,
+            context = context
+        ).copy(
+            source = source,
             dependencies = dependencies
         )
     }

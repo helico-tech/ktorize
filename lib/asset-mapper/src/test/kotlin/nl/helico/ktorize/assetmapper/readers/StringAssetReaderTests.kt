@@ -1,5 +1,6 @@
 package nl.helico.ktorize.assetmapper.readers
 
+import io.ktor.utils.io.*
 import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
