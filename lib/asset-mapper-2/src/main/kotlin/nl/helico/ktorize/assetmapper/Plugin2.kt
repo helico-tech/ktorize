@@ -47,6 +47,7 @@ class AssetMapperConfiguration {
 val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration() }) {
 
     val assetMapper = pluginConfig.factory(this)
+    val cacheControl = listOf(Immutable, CacheControl.MaxAge(pluginConfig.cacheDuration))
 
     application.attributes.put(AssetMapper.Key, assetMapper)
     application.attributes.put(AssetMapperConfiguration.Key, pluginConfig)
@@ -63,36 +64,21 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
                 "$baseName.$extension"
             ).normalize()
 
-            val asset = assetMapper.map(actualPath)
-
-            when (asset) {
+            when (val asset = assetMapper.map(actualPath)) {
                 is AssetMapper.MapResult.NotFound -> call.respond(HttpStatusCode.NotFound)
                 is AssetMapper.MapResult.Error -> call.respond(HttpStatusCode.InternalServerError, asset.error.message ?: "")
                 is AssetMapper.MapResult.Mapped -> {
-                    val output = asset.output
+                    call.response.headers.append(HttpHeaders.CacheControl, cacheControl.joinToString(", "))
+                    call.respondText(
+                        text = asset.output.content,
+                        contentType = asset.output.contentType,
+                    )
                 }
             }
-
-            call.respondText { actualPath .toString()}
         }
     }
 }
 
 internal object Immutable : CacheControl(null) {
     override fun toString(): String = "immutable"
-}
-
-suspend fun PipelineCall.redirectInternally(path: String) {
-    val cp = object: RequestConnectionPoint by this.request.local {
-        override val uri: String = path
-    }
-    val req = object: PipelineRequest by this.request {
-        override val local: RequestConnectionPoint = cp
-    }
-
-    val call = object: PipelineCall by this {
-        override val request: PipelineRequest = req
-    }
-
-    this.application.execute(call)
 }
