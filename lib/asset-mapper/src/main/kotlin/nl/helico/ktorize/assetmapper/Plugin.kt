@@ -7,6 +7,8 @@ import io.ktor.server.routing.*
 import io.ktor.util.*
 import io.ktor.util.logging.*
 import io.ktor.utils.io.core.*
+import kotlinx.io.buffered
+import kotlinx.io.readByteArray
 import nl.helico.ktorize.assetmapper.handlers.CSSHandler
 import nl.helico.ktorize.assetmapper.readers.ResourceAssetReader
 import nl.helico.ktorize.assetmapper.readers.WebAssetReader
@@ -33,7 +35,7 @@ class AssetMapperConfiguration {
             )
         )
         val handlers = listOf(CSSHandler())
-        AssetMapper(reader, handlers).cached()
+        AssetMapper(reader, handlers)
     }
 
     companion object {
@@ -66,8 +68,8 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
                 is AssetMapper.MapResult.Error -> call.respond(HttpStatusCode.InternalServerError, asset.error.message ?: "")
                 is AssetMapper.MapResult.Mapped -> {
                     call.response.headers.append(HttpHeaders.CacheControl, cacheControl.joinToString(", "))
-                    call.respondSource(
-                        source = asset.output.source,
+                    call.respondBytes(
+                        bytes = asset.output.source.readByteArray(),
                         contentType = asset.output.contentType
                     )
                 }
