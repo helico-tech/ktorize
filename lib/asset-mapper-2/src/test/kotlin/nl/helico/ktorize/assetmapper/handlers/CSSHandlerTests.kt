@@ -4,10 +4,7 @@ import nl.helico.ktorize.assetmapper.Asset
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.readers.StringAssetReader
 import kotlin.io.path.Path
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
+import kotlin.test.*
 
 class CSSHandlerTests {
 
@@ -141,7 +138,8 @@ class CSSHandlerTests {
         )
 
         val mapped = mapper.map(Path("other-urls.css"))
-        assertEquals(1, mapped.dependencies.size)
+        assertIs<AssetMapper.MapResult.Mapped>(mapped)
+        assertEquals(1, mapped.output.dependencies.size)
     }
 
     @Test fun missing() {
@@ -150,9 +148,8 @@ class CSSHandlerTests {
             "missing-url.css" to Fixtures.CSS.`missing-url`
         )
 
-        assertFailsWith<IllegalStateException> {
-            mapper.map(Path("missing-url.css"))
-        }
+        val result = mapper.map(Path("missing-url.css"))
+        assertIs<AssetMapper.MapResult.Error>(result)
     }
 
     private fun createMapper(handler: CSSHandler, vararg data: Pair<String, String>): AssetMapper {

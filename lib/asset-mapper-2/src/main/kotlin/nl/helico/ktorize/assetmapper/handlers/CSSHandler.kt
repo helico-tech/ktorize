@@ -1,16 +1,20 @@
 package nl.helico.ktorize.assetmapper.handlers
 
 import io.ktor.http.*
+import io.ktor.util.logging.*
 import nl.helico.ktorize.assetmapper.Asset
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.Context
 import java.nio.file.Path
 import kotlin.io.path.Path
 
-class CSSHandler : BaseHandler() {
+class CSSHandler(
+    val strict: Boolean = true
+) : BaseHandler() {
 
     private val urlRegex = """url\((['"]?)(.*?)\1\)\s*;""".toRegex()
     private val importDirectRegex = """@import\s+(['"])(.*?)\1\s*;""".toRegex()
+    private val logger = KtorSimpleLogger("CSSHandler")
 
     override fun accepts(input: Asset.Input): Boolean {
         return input.contentType.match(ContentType.Text.CSS)
@@ -38,12 +42,20 @@ class CSSHandler : BaseHandler() {
             val path = (input.path.parent ?: Path(".")).resolve(relativePath).normalize()
             if (!dependencyTracker.addDependency(input.path, path)) error("Circular dependency detected")
 
-            val asset = mapper.map(path, context)
-            val transformedPath = mapper.getTransformedPath(asset)
-            val transformedLine = line.replace(relativePath.fileName.toString(), transformedPath.fileName.toString())
-
-            transformedLines.add(transformedLine)
-            dependencies.add(asset)
+            when (val assetResult = mapper.map(path, context)) {
+                is AssetMapper.MapResult.NotFound -> when {
+                    strict -> error("Asset not found: $path")
+                    else ->  {
+                        logger.warn("Asset not found: $path")
+                        transformedLines.add(line)
+                    }
+                }
+                is AssetMapper.MapResult.Error -> throw assetResult.error
+                is AssetMapper.MapResult.Mapped -> {
+                    transformedLines.add(line.replace(relativePath.fileName.toString(), mapper.getTransformedPath(assetResult.output).fileName.toString()))
+                    dependencies.add(assetResult.output)
+                }
+            }
         }
 
 
