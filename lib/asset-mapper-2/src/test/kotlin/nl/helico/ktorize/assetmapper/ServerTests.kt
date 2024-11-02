@@ -8,15 +8,17 @@ import kotlin.test.assertEquals
 
 class ServerTests {
 
-    private fun ApplicationTestBuilder.setup() {
+    private fun ApplicationTestBuilder.setup(setup: AssetMapperConfiguration.() -> Unit = {}) {
         install(AssetMapperPlugin) {
-            basePackage = "server-tests"
+            setup()
         }
     }
 
     @Test
     fun simpleAssetTest() = testApplication {
-        setup()
+        setup {
+            basePackage = "server-tests/simple-asset"
+        }
 
         var response = client.get("/assets/my-test-asset.0ebb698246629183e0404f3b62691205.txt")
         var content = response.bodyAsText()

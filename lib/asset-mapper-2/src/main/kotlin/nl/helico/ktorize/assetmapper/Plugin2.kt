@@ -33,10 +33,8 @@ class AssetMapperConfiguration {
                 classLoader = environment.classLoader
             )
         )
-
         val handlers = listOf(CSSHandler())
-
-        AssetMapper(reader, handlers)
+        AssetMapper(reader, handlers).cached()
     }
 
     companion object {
