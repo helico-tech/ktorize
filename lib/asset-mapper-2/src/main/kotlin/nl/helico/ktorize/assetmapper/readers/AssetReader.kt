@@ -9,8 +9,8 @@ interface AssetReader {
     fun read(path: Path): Reader?
 
     fun readAsset(path: Path, digester: AssetDigester): Asset.Input? {
-        val data = read(path.normalize())?.readLines() ?: return null
-        return Asset.Input(path.normalize(), lines = data, digest = digester.digest(data))
+        val content = read(path.normalize())?.readText() ?: return null
+        return Asset.Input(path.normalize(), content = content, digest = digester.digest(content))
     }
 }
 

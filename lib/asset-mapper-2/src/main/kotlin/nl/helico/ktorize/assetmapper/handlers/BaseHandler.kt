@@ -8,9 +8,9 @@ abstract class BaseHandler : AssetHandler {
     override fun handle(input: Asset.Input, mapper: AssetMapper, context: Context): Asset.Output {
         return Asset.Output(
             path = mapper.getTransformedPath(input),
-            lines = input.lines,
+            content = input.content,
             input = input,
-            digest = mapper.digest(input.lines),
+            digest = mapper.digest(input.content),
             dependencies = emptyList()
         )
     }

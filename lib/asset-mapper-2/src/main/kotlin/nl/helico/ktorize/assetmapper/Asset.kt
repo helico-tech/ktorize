@@ -6,12 +6,12 @@ import java.nio.file.Path
 sealed interface Asset {
     val path: Path
     val digest: String
-    val lines: List<String>
+    val content: String
     val contentType: ContentType
 
     data class Input(
         override val path: Path,
-        override val lines: List<String>,
+        override val content: String,
         override val digest: String
     ) : Asset {
         override val contentType: ContentType = ContentType.defaultForPath(path)
@@ -19,7 +19,7 @@ sealed interface Asset {
 
     data class Output(
         override val path: Path,
-        override val lines: List<String>,
+        override val content: String,
         override val digest: String,
         val input: Input,
         val dependencies: List<Output>

@@ -10,9 +10,7 @@ interface AssetWriter {
     fun writeAsset(output: Asset.Output, includingDependencies: Boolean = true) {
         val writer = writer(output.path) ?: error("Invalid path ${output.path}")
         writer.use {
-            output.lines.forEach { line ->
-                it.appendLine(line)
-            }
+            it.write(output.content)
         }
 
         if (includingDependencies)  output.dependencies.forEach { writeAsset(it) }

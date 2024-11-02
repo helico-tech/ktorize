@@ -11,7 +11,7 @@ typealias Context = Attributes
 interface AssetMapper {
     fun read(path: Path): Asset.Input?
 
-    fun digest(lines: List<String>): String
+    fun digest(content: String): String
 
     fun map(path: Path, context: Context = Attributes()): MapResult
 
@@ -48,8 +48,8 @@ class AssetMapperImpl(
         return reader.readAsset(path, digester)
     }
 
-    override fun digest(lines: List<String>): String {
-        return digester.digest(lines)
+    override fun digest(content: String): String {
+        return digester.digest(content)
     }
 
     override fun map(path: Path, context: Context): AssetMapper.MapResult {

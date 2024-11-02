@@ -16,7 +16,7 @@ interface AssetPathTransformer {
 object AssetPathTransformerImpl : AssetPathTransformer {
 
     override fun createMappedAssetRegex(basePath: Path): Regex {
-        return Regex("""${basePath.normalize()}?<directoryName>.*?)/(?<baseName>[^/]+).(?<digest>[0-9a-f]{32})\.(?<extension>[^/]+)""")
+        return Regex("""${basePath.normalize()}(?<directoryName>.*?)/(?<baseName>[^/]+).(?<digest>[0-9a-f]{32})\.(?<extension>[^/]+)""")
     }
 
     override fun transform(input: Path, digest: String): Path {

@@ -2,8 +2,8 @@ package nl.helico.ktorize.assetmapper
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.http.content.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
 import io.ktor.util.logging.*
@@ -27,8 +27,8 @@ class AssetMapperConfiguration {
     var factory: PluginBuilder<AssetMapperConfiguration>.() -> AssetMapper = { ->
 
         val reader = WebAssetReader(
-                basePath = Path(basePath),
-                downstream = ResourceAssetReader(
+            basePath = Path(basePath),
+            downstream = ResourceAssetReader(
                 basePackage = Path(basePackage).normalize(),
                 classLoader = environment.classLoader
             )
@@ -52,6 +52,29 @@ val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration
     application.attributes.put(AssetMapperConfiguration.Key, pluginConfig)
 
     application.routing {
+        get(assetMapper.getMappedAssetRegex(Path(pluginConfig.basePath))) {
+            val directoryName = call.parameters["directoryName"]!!.removePrefix("/")
+            val baseName = call.parameters["baseName"]!!
+            val extension = call.parameters["extension"]!!
+
+            val actualPath = Path(
+                pluginConfig.basePath,
+                directoryName,
+                "$baseName.$extension"
+            ).normalize()
+
+            val asset = assetMapper.map(actualPath)
+
+            when (asset) {
+                is AssetMapper.MapResult.NotFound -> call.respond(HttpStatusCode.NotFound)
+                is AssetMapper.MapResult.Error -> call.respond(HttpStatusCode.InternalServerError, asset.error.message ?: "")
+                is AssetMapper.MapResult.Mapped -> {
+                    val output = asset.output
+                }
+            }
+
+            call.respondText { actualPath .toString()}
+        }
     }
 }
 

@@ -26,7 +26,7 @@ class CSSHandler(
         val dependencies = mutableListOf<Asset.Output>()
         val transformedLines = mutableListOf<String>()
 
-        input.lines.forEach { line ->
+        input.content.lines().forEach { line ->
             val url = listOf(urlRegex, importDirectRegex).firstNotNullOfOrNull { regex -> regex.find(line)?.groupValues?.get(2) }
             if (url == null) {
                 transformedLines.add(line)
@@ -58,12 +58,12 @@ class CSSHandler(
             }
         }
 
-
+        val content = transformedLines.joinToString(System.lineSeparator())
         return super.handle(
-            input = input.copy(lines = transformedLines),
+            input = input.copy(content = content),
             mapper = mapper,
             context = context).copy(
-            lines = transformedLines,
+            content = content,
             dependencies = dependencies
         )
     }

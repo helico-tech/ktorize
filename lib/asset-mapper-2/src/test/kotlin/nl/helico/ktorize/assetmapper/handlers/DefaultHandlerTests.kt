@@ -15,14 +15,14 @@ class DefaultHandlerTests {
     @Test
     fun `accepts returns true`() {
         val handler = DefaultHandler()
-        val input = Asset.Input(Path("test"), listOf("data"), "123")
+        val input = Asset.Input(Path("test"), "data", "123")
         val result = handler.accepts(input)
         assertTrue(result)
     }
 
     @Test
     fun `handle returns output with transformed path`() {
-        val data = listOf("data")
+        val data = "data"
         val path = Path("/some/dir/test.txt")
 
         val handler = DefaultHandler()
@@ -39,7 +39,7 @@ class DefaultHandlerTests {
 
     @Test
     fun `handle returns output with transformed path without extension`() {
-        val data = listOf("data")
+        val data = "data"
         val path = Path("/some/dir/test")
 
         val handler = DefaultHandler()
