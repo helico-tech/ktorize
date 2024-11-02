@@ -3,7 +3,6 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "ktorize"
 
 include(":lib:asset-mapper")
-include(":lib:asset-mapper-2")
 include("lib:di")
 include(":lib:forms")
 include(":lib:hotwire-turbo")

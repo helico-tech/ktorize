@@ -1,79 +1,81 @@
 package nl.helico.ktorize.assetmapper
 
 import io.ktor.util.*
-import java.net.URL
-import java.security.MessageDigest
-import java.util.concurrent.ConcurrentHashMap
+import nl.helico.ktorize.assetmapper.handlers.AssetHandler
+import nl.helico.ktorize.assetmapper.handlers.DefaultHandler
+import nl.helico.ktorize.assetmapper.readers.AssetReader
+import java.nio.file.Path
+
+typealias Context = Attributes
 
 interface AssetMapper {
+    fun read(path: Path): Asset.Input?
 
-    interface Preload {
-        fun preload(): List<String>
+    fun digest(content: String): String
+
+    fun map(path: Path, context: Context = Attributes()): MapResult
+
+    fun map(path: String, context: Context = Attributes()): MapResult {
+        return map(Path.of(path).normalize(), context)
+    }
+
+    fun getTransformedPath(asset: Asset): Path
+
+    fun getMappedAssetRegex(basePath: Path): Regex
+
+    sealed interface MapResult {
+        data object NotFound: MapResult
+        data class Mapped(val path: Path, val output: Asset.Output): MapResult
+        data class Error(val path: Path, val error: Throwable): MapResult
     }
 
     companion object {
         val Key = AttributeKey<AssetMapper>("AssetMapper")
+
+        operator fun invoke(
+            reader: AssetReader,
+            handlers: List<AssetHandler>,
+            digester: AssetDigester = MD5AssetDigester,
+            pathTransformer: AssetPathTransformer= AssetPathTransformer(),
+        ): AssetMapper = AssetMapperImpl(reader, handlers, digester, pathTransformer)
     }
-
-    val pathRegex: Regex
-
-    fun matches(path: String): Boolean
-
-    fun map(path: String): String
 }
 
-class DefaultAssetMapper(
-    val baseUrl: String,
-    val assetResolver: AssetResolver,
-    private val cache: MutableMap<String, String> = ConcurrentHashMap()
-) : AssetMapper, AssetMapper.Preload {
+class AssetMapperImpl(
+    private val reader: AssetReader,
+    private val handlers: List<AssetHandler>,
+    private val digester: AssetDigester = MD5AssetDigester,
+    private val pathTransformer: AssetPathTransformer= AssetPathTransformer(),
+): AssetMapper  {
 
-    override val pathRegex: Regex = createMappedAssetRegex(baseUrl)
-
-    override fun matches(path: String): Boolean {
-        return path.startsWith(baseUrl)
+    override fun read(path: Path): Asset.Input? {
+        return reader.readAsset(path, digester)
     }
 
-    override fun preload(): List<String> {
-        if (assetResolver is AssetResolver.ResolveAll) {
-            val assets = assetResolver.resolveAll().map { "$baseUrl/${it.first}" }
-            assets.forEach {
-                map(it)
-            }
-            return assets
+    override fun digest(content: String): String {
+        return digester.digest(content)
+    }
+
+    override fun map(path: Path, context: Context): AssetMapper.MapResult {
+        val input = reader.readAsset(path, digester) ?: return AssetMapper.MapResult.NotFound
+        val result = kotlin.runCatching {
+            val handler = handlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
+            val output = handler.handle(input, this, context)
+            AssetMapper.MapResult.Mapped(path, output)
         }
-        return emptyList()
-    }
 
-    override fun map(path: String): String {
-        return cache.getOrPut(path) {
-            val logicalPath = path.removePrefix(baseUrl).removePrefix("/")
-            val asset = assetResolver.resolveOrNull(logicalPath) ?: return path
-
-            val fileName = logicalPath.substringAfterLast('/')
-            val directoryName = logicalPath.removeSuffix(fileName).removeSuffix("/")
-
-            val parts = fileName.split(".")
-
-            val extension = parts.last()
-
-            val baseName = parts.dropLast(1).joinToString(".")
-
-            val digest = asset.md5()
-
-            listOf(
-                baseUrl,
-                directoryName,
-                "$baseName.$digest.$extension"
-            ).filterNot { it.isEmpty() }.joinToString("/")
+        return when {
+            result.isFailure -> AssetMapper.MapResult.Error(path, result.exceptionOrNull()!!)
+            else -> result.getOrThrow()
         }
     }
 
-    @OptIn(ExperimentalStdlibApi::class)
-    fun URL.md5(): String {
-        val md = MessageDigest.getInstance("MD5")
-        val digest = md.digest(this.readBytes())
-        return digest.toHexString()
+    override fun getTransformedPath(asset: Asset) = when (asset) {
+        is Asset.Input -> pathTransformer.transform(asset.path, asset.digest)
+        is Asset.Output -> asset.path
     }
 
+    override fun getMappedAssetRegex(basePath: Path): Regex {
+        return pathTransformer.createMappedAssetRegex(basePath)
+    }
 }
