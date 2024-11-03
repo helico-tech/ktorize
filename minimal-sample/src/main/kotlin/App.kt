@@ -4,10 +4,8 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.utils.io.core.*
 import kotlinx.io.asSource
 import kotlinx.io.buffered
-import kotlinx.io.readByteArray
 
 fun main() {
     embeddedServer(Netty, port = 8080) {
