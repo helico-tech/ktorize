@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     implementation(libs.ktor.server.core)
-    implementation(projects.lib.html)
+    implementation(projects.ktorize.lib.html)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.ktor.server.test.host)

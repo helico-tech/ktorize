@@ -8,6 +8,7 @@ import nl.helico.ktorize.assetmapper.AssetMapperConfiguration
 import nl.helico.ktorize.html.AddScriptRenderPass
 import nl.helico.ktorize.html.renderContext
 import nl.helico.ktorize.importmap.ImportMapBuilder
+import kotlin.io.path.Path
 
 internal val name = "HotwireStimulusPlugin"
 
@@ -32,19 +33,24 @@ val HotwireStimulusPlugin = createRouteScopedPlugin(name, { HotwireStimulusConfi
 
         val controllerResolver = ControllerResolver(
             basePackage = assetMapperConfig.basePackage + pluginConfig.controllerPrefix,
-            remotePath = assetMapperConfig.remotePath + pluginConfig.controllerPrefix,
+            remotePath = assetMapperConfig.basePath + pluginConfig.controllerPrefix,
             classLoader = call.application.environment.classLoader
         )
 
         importMapBuilder.addModuleSpecifier("@hotwired/stimulus", pluginConfig.src)
+
         importMapBuilder.addProvider { builder ->
             controllerRegistry.identifiers()
-                .map { id -> "${pluginConfig.controllerPrefix}/${id}" to controllerResolver.resolveController(id) }
+                .map { id -> "${assetMapperConfig.basePath}${pluginConfig.controllerPrefix}/${id}" to controllerResolver.resolveController(id) }
                 .map { (id, src) -> id to assetMapper.map(src) }
-                .forEach { (id, src) -> builder.addModuleSpecifier(id, src) }
+                .forEach { (id, result) ->
+                    if (result is AssetMapper.MapResult.Mapped) {
+                        builder.addModuleSpecifier(id, result.output.path.toString())
+                    }
+                }
         }
 
-        val initScript = StimulusInitScript(pluginConfig.controllerPrefix, controllerRegistry)
+        val initScript = StimulusInitScript(assetMapperConfig.basePath, pluginConfig.controllerPrefix, controllerRegistry)
 
         val setupScriptPass = AddScriptRenderPass(type = "module") {
             unsafe {
