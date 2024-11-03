@@ -9,7 +9,6 @@ class AssetMapperRenderPass(
     val tagNames: List<String> = listOf("img", "script", "link", "a"),
     val attributeNames: List<String> = listOf("src", "href")
 ) : RenderPass {
-
     override fun before(action: TagConsumerAction, consumer: TagConsumer<*>): Boolean {
         return true
     }
@@ -20,8 +19,12 @@ class AssetMapperRenderPass(
         if (!tagNames.contains(action.tag.tagName)) return
 
         attributeNames.forEach {attributeName ->
-            val src = action.tag.attributes[attributeName]
-            if (src != null && assetMapper.matches(src)) action.tag.attributes[attributeName] = assetMapper.map(src)
+            val src = action.tag.attributes[attributeName] ?: return@forEach
+            val assetResult = assetMapper.map(src)
+
+            if (assetResult is AssetMapper.MapResult.Mapped) {
+                action.tag.attributes[attributeName] = assetResult.output.path.toString()
+            }
         }
     }
 }

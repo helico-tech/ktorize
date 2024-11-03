@@ -1,6 +1,7 @@
 package nl.helico.ktorize.hotwire.stimulus
 
 class StimulusInitScript(
+    val basePath: String,
     val controllerPrefix: String,
     val controllerRegistry: ControllerRegistry
 ) {
@@ -8,7 +9,7 @@ class StimulusInitScript(
         return """
             import { Application } from "@hotwired/stimulus";
             
-            ${controllerRegistry.identifiers().joinToString("\n") { "import ${it}Controller from \"${controllerPrefix}/${it}\";" }}
+            ${controllerRegistry.identifiers().joinToString("\n") { "import ${it}Controller from \"${basePath}${controllerPrefix}/${it}\";" }}
             
             window.Stimulus = Application.start();
             
