@@ -3,8 +3,6 @@ package nl.helico.ktorize.hotwire.stimulus
 import io.ktor.server.application.*
 import io.ktor.util.logging.*
 import kotlinx.html.unsafe
-import nl.helico.ktorize.assetmapper.AssetMapper
-import nl.helico.ktorize.assetmapper.AssetMapperConfiguration
 import nl.helico.ktorize.html.AddScriptRenderPass
 import nl.helico.ktorize.html.renderContext
 import nl.helico.ktorize.importmap.ImportMapBuilder
@@ -19,7 +17,7 @@ class HotwireStimulusConfiguration {
     var src: String = "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/dist/stimulus.min.js"
 }
 
-val HotwireStimulusPlugin = createRouteScopedPlugin(name, { HotwireStimulusConfiguration() }) {
+/*val HotwireStimulusPlugin = createRouteScopedPlugin(name, { HotwireStimulusConfiguration() }) {
 
     val assetMapper = application.attributes.getOrNull(AssetMapper.Key) ?: error("AssetMapper not found")
     val assetMapperConfig = application.attributes.getOrNull(AssetMapperConfiguration.Key) ?: error("AssetMapperConfiguration not found")
@@ -61,4 +59,4 @@ val HotwireStimulusPlugin = createRouteScopedPlugin(name, { HotwireStimulusConfi
         call.renderContext.addRenderPass(StimulusControllerRenderPass(controllerRegistry))
         call.renderContext.addRenderPass(setupScriptPass)
     }
-}
+}*/

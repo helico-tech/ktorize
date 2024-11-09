@@ -2,9 +2,6 @@ import controllers.index
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
-import nl.helico.ktorize.assetmapper.AssetMapperPlugin
-import nl.helico.ktorize.bootstrap.BootstrapPlugin
-import nl.helico.ktorize.hotwire.stimulus.HotwireStimulusPlugin
 import nl.helico.ktorize.hotwire.turbo.HotwireTurboPlugin
 import nl.helico.ktorize.importmap.ImportMapPlugin
 
@@ -13,11 +10,11 @@ fun main(args: Array<String>) {
 }
 
 fun Application.root() {
-    install(AssetMapperPlugin)
-    install(ImportMapPlugin)
+    //install(AssetMapperPlugin)
+    /*install(ImportMapPlugin)
     install(BootstrapPlugin)
     install(HotwireStimulusPlugin)
-    install(HotwireTurboPlugin)
+    install(HotwireTurboPlugin)*/
 
     routing {
         index()

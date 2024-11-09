@@ -26,12 +26,10 @@ dependencies {
     implementation(libs.logback.classic)
 
     // ktorize
-    implementation(projects.lib.assetMapper)
     implementation(projects.lib.importmap)
     implementation(projects.lib.html)
     implementation(projects.lib.hotwireStimulus)
     implementation(projects.lib.hotwireTurbo)
-    implementation(projects.lib.bootstrap)
 
     // DI
     implementation(libs.kodein.di)

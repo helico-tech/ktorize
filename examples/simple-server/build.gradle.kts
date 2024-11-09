@@ -1,6 +1,11 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
+    id("nl.helico.ktorize.assetmapper")
+}
+
+assetMapper {
+    //assetDirectory.set(file("src/main/resources/assets"))
 }
 
 application {
@@ -24,9 +29,8 @@ dependencies {
 
     implementation(projects.lib.html)
     implementation(projects.lib.di)
-    implementation(projects.lib.assetMapper)
+    //implementation(projects.lib.assetMapper)
     implementation(projects.lib.hotwireTurbo)
     implementation(projects.lib.hotwireStimulus)
     implementation(projects.lib.importmap)
-    implementation(projects.lib.bootstrap)
 }
