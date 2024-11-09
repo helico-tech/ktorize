@@ -43,3 +43,14 @@ class AddScriptRenderPass(val type: String? = null,
 
     override fun after(action: TagConsumerAction, consumer: TagConsumer<*>) {}
 }
+
+class AddHeadContentRenderPass(val block: HEAD.() -> Unit) : RenderPass {
+    override fun before(action: TagConsumerAction, consumer: TagConsumer<*>): Boolean {
+        if (action is TagConsumerAction.TagEnd && action.tag is HEAD) {
+            action.tag.block()
+        }
+        return true
+    }
+
+    override fun after(action: TagConsumerAction, consumer: TagConsumer<*>) {}
+}

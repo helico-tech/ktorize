@@ -5,7 +5,7 @@ import kotlinx.html.TagConsumer
 interface Layout {
     fun render(): HTMLView
 
-    interface Factory<L : Layout> {
+    fun interface Factory<L : Layout> {
         fun create(): L
     }
 }

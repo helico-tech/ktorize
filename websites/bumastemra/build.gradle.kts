@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.lib.html)
     implementation(projects.lib.hotwireStimulus)
     implementation(projects.lib.hotwireTurbo)
+    implementation(projects.lib.bootstrap)
 
     // DI
     implementation(libs.kodein.di)

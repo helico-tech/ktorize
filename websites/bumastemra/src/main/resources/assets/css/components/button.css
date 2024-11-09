@@ -1,0 +1,14 @@
+.kt-button {
+    --kt-button-background-color: var(--kt-color-primary-base);
+    --kt-button-foreground-color: var(--kt-color-white);
+    --kt-button-border-radius: var(--kt-dims-radius);
+    --kt-button-padding: var(--kt-dims-spacing) var(--kt-dims-spacing);
+    --kt-button-font-weight: var(--kt-font-weight-base);
+
+    border: 0;
+    background-color: var(--kt-button-background-color);
+    color: var(--kt-button-foreground-color);
+    border-radius: var(--kt-button-border-radius);
+    padding: var(--kt-button-padding);
+    font-weight: var(--kt-button-font-weight);
+}

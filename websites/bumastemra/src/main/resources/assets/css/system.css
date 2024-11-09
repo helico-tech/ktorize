@@ -1,0 +1,24 @@
+:root {
+    --kt-breakpoint-sm: 576px;
+    --kt-breakpoint-md: 768px;
+    --kt-breakpoint-lg: 992px;
+    --kt-breakpoint-xl: 1200px;
+    --kt-content-max-width: 1200px;
+
+    --kt-color-black: rgb(0, 0, 0);
+    --kt-color-white: rgb(255, 255, 255);
+    --kt-color-primary-base: rgb(17, 17, 187);
+    --kt-color-primary-light: rgb(222, 237, 251);
+    --kt-color-secondary-base: rgb(253, 229, 216);
+
+    --kt-font-serif: 'Poppins', serif;
+    --kt-font-root-size: 100%;
+
+    --kt-font-weight-light: 300;
+    --kt-font-weight-base: 400;
+    --kt-font-weight-bold: 500;
+    --kt-font-weight-bolder: 600;
+
+    --kt-dims-spacing: 1rem;
+    --kt-dims-radius: 0.5rem;
+}

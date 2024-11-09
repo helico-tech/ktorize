@@ -1,3 +1,8 @@
-@import "reset.css";
-@import "tokens.css";
-@import "components.css";
+@import "./reset.css";
+@import "./components/button.css";
+@import "./layouts/portal-layout.css";
+
+html {
+    font-family: var(--kt-font-serif);
+    font-size: var(--kt-font-root-size);
+}

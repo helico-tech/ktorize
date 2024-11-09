@@ -15,8 +15,12 @@ class AddImportMapRenderPass(
 
         if (action.tag !is HEAD) return true
 
+        val importMap = builder.build()
+
+        if (importMap.imports.isEmpty()) return true
+
         consumer.script(type = "importmap") {
-            unsafe { + builder.build().toString() }
+            unsafe { + importMap.toString() }
         }
 
         return true

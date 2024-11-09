@@ -1,0 +1,45 @@
+@import "../system.css";
+
+.kt-portal-layout {
+    header {
+        --kt-header-background-color: var(--kt-color-white);
+        --kt-header-foreground-color: var(--kt-color-black);
+        --kt-header-font-weight: var(--kt-font-weight-base);
+        --kt-header-height: calc(5 * var(--kt-dims-spacing));
+        --kt-header-box-shadow: 0 0 var(--kt-dims-spacing) rgba(0, 0, 0, 0.1);
+        --kt-header-padding: 0 var(--kt-dims-spacing);
+
+        background-color: var(--kt-header-background-color);
+        color: var(--kt-header-foreground-color);
+        font-weight: var(--kt-header-font-weight);
+        height: var(--kt-header-height);
+
+        padding: var(--kt-header-padding);
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+
+        .container {
+            height: 100%;
+            width: 100%;
+            max-width: var(--kt-content-max-width);
+
+            img {
+                height: 100%;
+            }
+        }
+    }
+
+    main {
+        --kt-main-padding: var(--kt-dims-spacing);
+
+        padding: var(--kt-main-padding);
+        display: flex;
+        justify-content: center;
+
+        .container {
+            width: 100%;
+            max-width: var(--kt-content-max-width);
+        }
+    }
+}
