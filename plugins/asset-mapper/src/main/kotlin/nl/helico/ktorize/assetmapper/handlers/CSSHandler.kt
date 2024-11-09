@@ -1,6 +1,5 @@
 package nl.helico.ktorize.assetmapper.handlers
 
-import io.ktor.http.*
 import io.ktor.util.logging.*
 import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
@@ -11,7 +10,7 @@ import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.Context
 import java.nio.file.Path
 import kotlin.io.path.Path
-import kotlin.text.toByteArray
+import kotlin.io.path.extension
 
 class CSSHandler(
     val strict: Boolean = true
@@ -22,7 +21,7 @@ class CSSHandler(
     private val logger = KtorSimpleLogger("CSSHandler")
 
     override fun accepts(input: Asset.Input): Boolean {
-        return input.contentType.match(ContentType.Text.CSS)
+        return input.path.extension == "css"
     }
 
     override fun handle(input: Asset.Input, mapper: AssetMapper, context: Context): Asset.Output {
@@ -31,7 +30,7 @@ class CSSHandler(
         val dependencies = mutableListOf<Asset.Output>()
         val transformedLines = mutableListOf<String>()
 
-        val lines = input.source.readText().lines()
+        /*val lines = input.source.readText().lines()
 
         lines.forEach { line ->
             val url = listOf(urlRegex, importDirectRegex).firstNotNullOfOrNull { regex -> regex.find(line)?.groupValues?.get(2) }
@@ -62,10 +61,10 @@ class CSSHandler(
                     transformedLines.add(line.replace(relativePath.fileName.toString(), mapper.getTransformedPath(assetResult.output).fileName.toString()))
                     dependencies.add(assetResult.output)
                 }
-            }
-        }
+            }*/
 
-        val content = transformedLines.joinToString(System.lineSeparator())
+
+        /*val content = transformedLines.joinToString(System.lineSeparator())
         val source = Buffer().apply {
             writeString(content)
         }
@@ -80,8 +79,11 @@ class CSSHandler(
         ).copy(
             source = source,
             dependencies = dependencies
-        )
+        )*/
+
+        return super.handle(input, mapper, context)
     }
+
 
     private fun getPathFromUrl(url: String): Path? {
         if (url.startsWith("http")) return null

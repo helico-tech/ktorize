@@ -11,8 +11,8 @@ class ResourceAssetReader(
     val basePackage: Path,
     val classLoader: ClassLoader
 ) : AssetReader {
-    override fun read(path: Path): Source? {
+    override fun read(path: Path): ByteArray? {
         val stream = classLoader.getResourceAsStream(basePackage.resolve(path).toString()) ?: return null
-        return stream.asSource().buffered()
+        return stream.readAllBytes()
     }
 }

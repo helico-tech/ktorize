@@ -7,12 +7,12 @@ import java.security.MessageDigest
 import kotlin.text.toByteArray
 
 interface AssetDigester {
-    fun digest(content: Source): String
+    fun digest(content: ByteArray): String
 }
 
 object MD5AssetDigester : AssetDigester {
-    override fun digest(content: Source): String {
-        val bytes = MessageDigest.getInstance("MD5").digest(content.copy().readByteArray())
+    override fun digest(content: ByteArray): String {
+        val bytes = MessageDigest.getInstance("MD5").digest(content)
         return bytes.joinToString("") { "%02x".format(it) }
     }
 }

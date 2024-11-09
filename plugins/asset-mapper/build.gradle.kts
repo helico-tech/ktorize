@@ -16,3 +16,9 @@ gradlePlugin {
         }
     }
 }
+
+kotlin {
+    dependencies {
+        implementation(libs.ktor.utils)
+    }
+}

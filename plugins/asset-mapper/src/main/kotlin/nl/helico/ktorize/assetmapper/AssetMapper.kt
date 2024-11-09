@@ -3,8 +3,8 @@ package nl.helico.ktorize.assetmapper
 import io.ktor.util.*
 import kotlinx.io.Source
 import nl.helico.ktorize.assetmapper.handlers.AssetHandler
-import nl.helico.ktorize.assetmapper.handlers.DefaultHandler
 import nl.helico.ktorize.assetmapper.readers.AssetReader
+import nl.helico.ktorize.assetmapper.handlers.DefaultHandler
 import java.nio.file.Path
 
 typealias Context = Attributes
@@ -12,7 +12,7 @@ typealias Context = Attributes
 interface AssetMapper {
     fun read(path: Path): Asset.Input?
 
-    fun digest(content: Source): String
+    fun digest(content: ByteArray): String
 
     fun map(path: Path, context: Context = Attributes()): MapResult
 
@@ -53,7 +53,7 @@ class AssetMapperImpl(
         return reader.readAsset(path, digester)
     }
 
-    override fun digest(content: Source): String {
+    override fun digest(content: ByteArray): String {
         return digester.digest(content)
     }
 
