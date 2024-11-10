@@ -49,6 +49,8 @@ class AssetMapperImpl(
     private val pathTransformer: AssetPathTransformer= AssetPathTransformer(),
 ): AssetMapper  {
 
+    private val mapCache = mutableMapOf<Path, AssetMapper.MapResult>()
+
     override fun read(path: Path): Asset.Input? {
         return reader.readAsset(path, digester)
     }
@@ -58,16 +60,18 @@ class AssetMapperImpl(
     }
 
     override fun map(path: Path, context: Context): AssetMapper.MapResult {
-        val input = reader.readAsset(path, digester) ?: return AssetMapper.MapResult.NotFound
-        val result = kotlin.runCatching {
-            val handler = handlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
-            val output = handler.handle(input, this, context)
-            AssetMapper.MapResult.Mapped(output)
-        }
+        return mapCache.getOrPut(path) {
+            val input = reader.readAsset(path, digester) ?: return AssetMapper.MapResult.NotFound
+            val result = kotlin.runCatching {
+                val handler = handlers.firstOrNull { it.accepts(input) } ?: DefaultHandler()
+                val output = handler.handle(input, this, context)
+                AssetMapper.MapResult.Mapped(output)
+            }
 
-        return when {
-            result.isFailure -> AssetMapper.MapResult.Error(path, result.exceptionOrNull()!!)
-            else -> result.getOrThrow()
+            return when {
+                result.isFailure -> AssetMapper.MapResult.Error(path, result.exceptionOrNull()!!)
+                else -> result.getOrThrow().also(::cacheResultRecursive)
+            }
         }
     }
 
@@ -78,5 +82,10 @@ class AssetMapperImpl(
 
     override fun getMappedAssetRegex(basePath: Path): Regex {
         return pathTransformer.createMappedAssetRegex(basePath)
+    }
+
+    private fun cacheResultRecursive(result: AssetMapper.MapResult.Mapped) {
+        mapCache[result.output.path] = result
+        result.output.dependencies.map { AssetMapper.MapResult.Mapped(it) }.forEach(::cacheResultRecursive)
     }
 }
