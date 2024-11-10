@@ -21,8 +21,6 @@ interface AssetMapper {
 
     fun getTransformedPath(asset: Asset): Path
 
-    fun getMappedAssetRegex(basePath: Path): Regex
-
     sealed interface MapResult {
         data object NotFound: MapResult
         data class Mapped(val output: Asset.Output): MapResult
@@ -77,10 +75,6 @@ class AssetMapperImpl(
     override fun getTransformedPath(asset: Asset) = when (asset) {
         is Asset.Input -> pathTransformer.transform(asset.path, asset.digest)
         is Asset.Output -> asset.path
-    }
-
-    override fun getMappedAssetRegex(basePath: Path): Regex {
-        return pathTransformer.createMappedAssetRegex(basePath)
     }
 
     private fun cacheResultRecursive(result: AssetMapper.MapResult.Mapped) {

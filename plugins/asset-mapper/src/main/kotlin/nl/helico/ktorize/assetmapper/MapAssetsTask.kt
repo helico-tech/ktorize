@@ -1,9 +1,7 @@
 package nl.helico.ktorize.assetmapper
 
-import nl.helico.ktorize.assetmapper.handlers.CSSHandler
-import nl.helico.ktorize.assetmapper.readers.FileAssetReader
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSet.MAIN_SOURCE_SET_NAME
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskAction
 import java.nio.file.Path
@@ -29,17 +27,22 @@ abstract class MapAssetsTask @Inject constructor(
         description = DESCRIPTION
     }
 
+    private fun getGeneratedResourcesDirectory() = extension.getGeneratedDirectory().resolve("resources")
+
+    private fun getGeneratedDirectory() = getGeneratedResourcesDirectory()
+        .resolve(extension.assetsBasePackage.get())
+
     @OptIn(ExperimentalPathApi::class)
     @TaskAction
     fun run() {
-        val basePath = extension.getResoucesPath()
+        val basePath = extension.getResourcesPath()
 
         logger.lifecycle("Mapping all assets in $basePath")
 
         val assetMapper = this.assetMapperProvider.get()
 
-        val filesToDelete = mutableListOf<Path>()
         val filesToCreate = mutableListOf<Pair<Path, ByteArray>>()
+        val filesToIgnore = mutableListOf<Path>()
 
         basePath.walk().forEach { path ->
             if (!path.isRegularFile()) return@forEach
@@ -53,16 +56,29 @@ abstract class MapAssetsTask @Inject constructor(
                 is AssetMapper.MapResult.Error -> logger.error("Error mapping $relative", result.error)
                 is AssetMapper.MapResult.Mapped -> {
                     logger.info("Mapped $relative to ${result.output.path}")
-                    filesToDelete.add(relative)
                     filesToCreate.add(result.output.path to result.output.source)
+                    filesToIgnore.add(path)
                 }
             }
         }
 
         filesToCreate.forEach { (path, content) ->
-            basePath.resolve(path).toFile().writeBytes(content)
+            val outputFile = getGeneratedDirectory().resolve(path.toFile())
+            outputFile.parentFile.mkdirs()
+            outputFile.writeBytes(content)
         }
 
-        filesToDelete.forEach { basePath.resolve(it).toFile().delete() }
+        filesToIgnore.forEach { path ->
+            val toIgnore = extension.assetsBasePackage.get().resolve(basePath.relativize(path).toFile())
+            sourceSetContainer.getByName(MAIN_SOURCE_SET_NAME).resources.exclude(toIgnore.toString())
+        }
+
+        registerResourcesDir()
+    }
+
+    private fun registerResourcesDir() {
+        val main = sourceSetContainer.getByName(MAIN_SOURCE_SET_NAME)
+        val resources = main.resources
+        resources.srcDir(getGeneratedResourcesDirectory())
     }
 }

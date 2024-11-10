@@ -18,20 +18,22 @@ abstract class AssetMapperExtension @Inject constructor(
     }
 
     @get:InputDirectory
-    abstract val assetDirectory: Property<File>
+    abstract val assetsBasePackage: Property<File>
 
     init {
-        assetDirectory.convention(File("src/main/resources/assets"))
+        assetsBasePackage.convention(File("assets"))
     }
 
-    fun getResoucesPath(): Path {
+    fun getResourcesPath(): Path {
         val mainSourceSet = sourceSetContainer.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        val resourcesSrcDir = mainSourceSet.resources.srcDirs.first()
-        val assetsDir = project.buildFile.parentFile.resolve(assetDirectory.get())
-        val relative = assetsDir.relativeTo(resourcesSrcDir)
-        val resourcesOutDir = mainSourceSet.output.resourcesDir
-        val resourcesPath = resourcesOutDir?.resolve(relative)
-        require(resourcesPath != null && resourcesPath.exists()) { "Could not find resources directory for main source set" }
+        val resourcesDir = mainSourceSet.resources.srcDirs.firstOrNull() ?: error("No resources directory found for main source set")
+        val resourcesPath = resourcesDir.resolve(assetsBasePackage.get())
+        require(resourcesPath.exists()) { "Could not find resources directory for main source set" }
         return resourcesPath.toPath()
     }
+
+    fun getGeneratedDirectory(): File {
+        return project.layout.buildDirectory.get().asFile.resolve("generated/ktorize")
+    }
+
 }

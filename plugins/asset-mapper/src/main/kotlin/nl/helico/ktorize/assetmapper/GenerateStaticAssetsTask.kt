@@ -21,8 +21,6 @@ abstract class GenerateStaticAssetsTask @Inject constructor(
         val DESCRIPTION = "Generate static assets"
     }
 
-    private val outputDir = project.layout.buildDirectory.get().asFile.resolve("generated/ktorize")
-
     init {
         group = AssetMapperPlugin.GROUP
         description = DESCRIPTION
@@ -30,14 +28,16 @@ abstract class GenerateStaticAssetsTask @Inject constructor(
         registerSourceSet()
     }
 
+    private fun getGeneratedDirectory() = extension.getGeneratedDirectory().resolve("kotlin")
+
     @OptIn(ExperimentalPathApi::class)
     @TaskAction
     fun run() {
         logger.lifecycle("Generating static assets")
 
-        outputDir.mkdirs()
+        getGeneratedDirectory().mkdirs()
 
-        val basePath = extension.getResoucesPath()
+        val basePath = extension.getResourcesPath()
 
         logger.lifecycle("Mapping all assets in $basePath")
 
@@ -62,13 +62,13 @@ abstract class GenerateStaticAssetsTask @Inject constructor(
 
         val assetsFile = generateAssetsFileContents(actions)
 
-        outputDir.resolve("Assets.kt").writeText(assetsFile)
+        getGeneratedDirectory().resolve("Assets.kt").writeText(assetsFile)
     }
 
     private fun registerSourceSet() {
         val main = sourceSetContainer.getByName(MAIN_SOURCE_SET_NAME)
         (main.extensions.getByName("kotlin") as SourceDirectorySet).apply {
-            srcDir(outputDir)
+            srcDir(getGeneratedDirectory())
         }
     }
 

@@ -23,7 +23,7 @@ abstract class AssetMapperPlugin : Plugin<Project> {
                 private val mapper by lazy {
                     logger.lifecycle("Instantiating asset mapper")
                     AssetMapper(
-                        reader = FileAssetReader(extension.assetDirectory.get().toPath()),
+                        reader = FileAssetReader(extension.getResourcesPath()),
                         handlers = listOf(CSSHandler())
                     )
                 }
@@ -45,10 +45,8 @@ abstract class AssetMapperPlugin : Plugin<Project> {
             assetMapperProvider
         )
 
-        mapAssetsTask.get().dependsOn("processResources")
-        generateStaticAssetsTask.get().dependsOn("processResources")
-
-        project.tasks.getByName("build").dependsOn(generateStaticAssetsTask)
-        project.tasks.getByName("build").dependsOn(mapAssetsTask)
+        project.tasks.getByName("compileKotlin").dependsOn(generateStaticAssetsTask)
+        project.tasks.getByName("compileKotlin").dependsOn(mapAssetsTask)
+        project.tasks.getByName("processResources").dependsOn(mapAssetsTask)
     }
 }
