@@ -8,13 +8,15 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskAction
 import java.nio.file.Path
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.walk
 
 abstract class MapAssetsTask @Inject constructor(
     private val sourceSetContainer: SourceSetContainer,
-    private val extension: AssetMapperExtension
+    private val extension: AssetMapperExtension,
+    private val assetMapperProvider: Provider<AssetMapper>
 ) : DefaultTask() {
 
     companion object {
@@ -27,30 +29,14 @@ abstract class MapAssetsTask @Inject constructor(
         description = DESCRIPTION
     }
 
+    @OptIn(ExperimentalPathApi::class)
     @TaskAction
     fun run() {
-        val mainSourceSet = sourceSetContainer.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-        val resourcesSrcDir = mainSourceSet.resources.srcDirs.first()
-        val assetsDir = project.buildFile.parentFile.resolve(extension.assetDirectory.get())
-        val relative = assetsDir.relativeTo(resourcesSrcDir)
-        val resourcesOutDir = mainSourceSet.output.resourcesDir
-        val resourcesPath = resourcesOutDir?.resolve(relative)
-        require(resourcesPath != null && resourcesPath.exists()) { "Could not find resources directory for main source set" }
-        mapAssets(resourcesPath.toPath())
-    }
+        val basePath = extension.getResoucesPath()
 
-    @OptIn(ExperimentalPathApi::class)
-    private fun mapAssets(basePath: Path) {
         logger.lifecycle("Mapping all assets in $basePath")
 
-        val assetMapper = AssetMapper(
-            reader = FileAssetReader(basePath),
-            handlers = listOf(
-                CSSHandler()
-            ),
-            pathTransformer = AssetPathTransformer(),
-            digester = MD5AssetDigester
-        )
+        val assetMapper = this.assetMapperProvider.get()
 
         val filesToDelete = mutableListOf<Path>()
         val filesToCreate = mutableListOf<Pair<Path, ByteArray>>()

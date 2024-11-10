@@ -1,5 +1,6 @@
 package nl.bumastemra.portal.libraries.layout
 
+import assets
 import kotlinx.html.*
 
 fun PortalLayout(title: String, content: FlowContent.() -> Unit) = BaseLayout(title) {
@@ -7,7 +8,7 @@ fun PortalLayout(title: String, content: FlowContent.() -> Unit) = BaseLayout(ti
     header("container") {
         div("container") {
             img {
-                src = "/assets/img/logo.svg"
+                src = assets.img.logo_svg
                 alt = "Buma Stemra"
             }
         }

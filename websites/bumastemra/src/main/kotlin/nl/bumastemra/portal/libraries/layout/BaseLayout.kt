@@ -1,5 +1,6 @@
 package nl.bumastemra.portal.libraries.layout
 
+import assets
 import kotlinx.html.*
 import nl.helico.ktorize.html.HTMLView
 
@@ -8,7 +9,7 @@ fun BaseLayout(title: String = "Buma Stemra Portal", body: BODY.() -> Unit): HTM
 
     head {
         title(content = title)
-        link(rel = "stylesheet", href = "/assets/css/styles.css")
+        link(rel = "stylesheet", href = assets.css.styles_css)
         link(rel = "preconnect", href = "https://fonts.googleapis.com")
         link(rel = "preconnect", href = "https://fonts.gstatic.com") {
             attributes["crossorigin"] = "anonymous"

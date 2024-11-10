@@ -1,7 +1,10 @@
 package nl.helico.ktorize.assetmapper
 
+import nl.helico.ktorize.assetmapper.handlers.CSSHandler
+import nl.helico.ktorize.assetmapper.readers.FileAssetReader
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import javax.inject.Provider
 
 abstract class AssetMapperPlugin : Plugin<Project> {
 
@@ -15,13 +18,37 @@ abstract class AssetMapperPlugin : Plugin<Project> {
             AssetMapperExtension::class.java
         )
 
+        val assetMapperProvider : Provider<AssetMapper> =
+            object : Provider<AssetMapper> {
+                private val mapper by lazy {
+                    logger.lifecycle("Instantiating asset mapper")
+                    AssetMapper(
+                        reader = FileAssetReader(extension.assetDirectory.get().toPath()),
+                        handlers = listOf(CSSHandler())
+                    )
+                }
+
+                override fun get(): AssetMapper = mapper
+            }
+
         val mapAssetsTask = target.tasks.register(
             MapAssetsTask.NAME,
             MapAssetsTask::class.java,
-            extension
+            extension,
+            assetMapperProvider
+        )
+
+        val generateStaticAssetsTask = target.tasks.register(
+            GenerateStaticAssetsTask.NAME,
+            GenerateStaticAssetsTask::class.java,
+            extension,
+            assetMapperProvider
         )
 
         mapAssetsTask.get().dependsOn("processResources")
+        generateStaticAssetsTask.get().dependsOn("processResources")
+
+        project.tasks.getByName("build").dependsOn(generateStaticAssetsTask)
         project.tasks.getByName("build").dependsOn(mapAssetsTask)
     }
 }
