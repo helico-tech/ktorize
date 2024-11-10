@@ -1,10 +1,7 @@
 package nl.helico.ktorize.assetmapper.handlers
 
 import io.ktor.util.logging.*
-import io.ktor.utils.io.*
 import io.ktor.utils.io.core.*
-import kotlinx.io.Buffer
-import kotlinx.io.writeString
 import nl.helico.ktorize.assetmapper.Asset
 import nl.helico.ktorize.assetmapper.AssetMapper
 import nl.helico.ktorize.assetmapper.Context
@@ -30,10 +27,13 @@ class CSSHandler(
         val dependencies = mutableListOf<Asset.Output>()
         val transformedLines = mutableListOf<String>()
 
-        /*val lines = input.source.readText().lines()
+        val lines = input.source.toString(charset = Charsets.UTF_8).lines()
 
         lines.forEach { line ->
-            val url = listOf(urlRegex, importDirectRegex).firstNotNullOfOrNull { regex -> regex.find(line)?.groupValues?.get(2) }
+            val url = listOf(
+                urlRegex,
+                importDirectRegex
+            ).firstNotNullOfOrNull { regex -> regex.find(line)?.groupValues?.get(2) }
             if (url == null) {
                 transformedLines.add(line)
                 return@forEach
@@ -51,23 +51,28 @@ class CSSHandler(
             when (val assetResult = mapper.map(path, context)) {
                 is AssetMapper.MapResult.NotFound -> when {
                     strict -> error("Asset not found: $path")
-                    else ->  {
+                    else -> {
                         logger.warn("Asset not found: $path")
                         transformedLines.add(line)
                     }
                 }
+
                 is AssetMapper.MapResult.Error -> throw assetResult.error
                 is AssetMapper.MapResult.Mapped -> {
-                    transformedLines.add(line.replace(relativePath.fileName.toString(), mapper.getTransformedPath(assetResult.output).fileName.toString()))
+                    transformedLines.add(
+                        line.replace(
+                            relativePath.fileName.toString(),
+                            mapper.getTransformedPath(assetResult.output).fileName.toString()
+                        )
+                    )
                     dependencies.add(assetResult.output)
                 }
-            }*/
-
-
-        /*val content = transformedLines.joinToString(System.lineSeparator())
-        val source = Buffer().apply {
-            writeString(content)
+            }
         }
+
+
+        val content = transformedLines.joinToString(System.lineSeparator())
+        val source = content.toByteArray()
 
         return super.handle(
             input = input.copy(
@@ -79,9 +84,7 @@ class CSSHandler(
         ).copy(
             source = source,
             dependencies = dependencies
-        )*/
-
-        return super.handle(input, mapper, context)
+        )
     }
 
 
@@ -89,4 +92,5 @@ class CSSHandler(
         if (url.startsWith("http")) return null
         return Path(url)
     }
+
 }

@@ -1,6 +1,5 @@
 package nl.helico.ktorize.assetmapper.writers
 
-import nl.helico.ktorize.assetmapper.Asset
 import java.io.Writer
 import java.nio.file.Path
 

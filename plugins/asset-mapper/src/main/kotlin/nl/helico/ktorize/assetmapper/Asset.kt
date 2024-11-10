@@ -7,13 +7,13 @@ sealed interface Asset {
     val digest: String
     val source: ByteArray
 
-    class Input(
+    data class Input(
         override val path: Path,
         override val source: ByteArray,
         override val digest: String
     ) : Asset
 
-    class Output(
+    data class Output(
         override val path: Path,
         override val source: ByteArray,
         override val digest: String,

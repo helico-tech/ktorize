@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     application
+    id("nl.helico.ktorize.assetmapper")
 }
 
 application {

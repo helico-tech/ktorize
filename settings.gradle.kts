@@ -13,4 +13,4 @@ include(":lib:importmap")
 
 //include(":examples:simple-server")
 
-//include(":websites:bumastemra")
+include(":websites:bumastemra")

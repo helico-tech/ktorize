@@ -1,7 +1,6 @@
 package nl.helico.ktorize.assetmapper
 
 import io.ktor.util.*
-import kotlinx.io.Source
 import nl.helico.ktorize.assetmapper.handlers.AssetHandler
 import nl.helico.ktorize.assetmapper.readers.AssetReader
 import nl.helico.ktorize.assetmapper.handlers.DefaultHandler
