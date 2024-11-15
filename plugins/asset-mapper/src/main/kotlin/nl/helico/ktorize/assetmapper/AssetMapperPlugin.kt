@@ -4,7 +4,10 @@ import nl.helico.ktorize.assetmapper.handlers.CSSHandler
 import nl.helico.ktorize.assetmapper.readers.FileAssetReader
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.language.jvm.tasks.ProcessResources
+import java.nio.charset.Charset
 import javax.inject.Provider
+import kotlin.io.path.name
 
 abstract class AssetMapperPlugin : Plugin<Project> {
 
@@ -31,13 +34,6 @@ abstract class AssetMapperPlugin : Plugin<Project> {
                 override fun get(): AssetMapper = mapper
             }
 
-        val mapAssetsTask = target.tasks.register(
-            MapAssetsTask.NAME,
-            MapAssetsTask::class.java,
-            extension,
-            assetMapperProvider
-        )
-
         val generateStaticAssetsTask = target.tasks.register(
             GenerateStaticAssetsTask.NAME,
             GenerateStaticAssetsTask::class.java,
@@ -46,7 +42,24 @@ abstract class AssetMapperPlugin : Plugin<Project> {
         )
 
         project.tasks.getByName("compileKotlin").dependsOn(generateStaticAssetsTask)
-        project.tasks.getByName("compileKotlin").dependsOn(mapAssetsTask)
-        project.tasks.getByName("processResources").dependsOn(mapAssetsTask)
+
+        project.tasks.withType(ProcessResources::class.java) { processResources ->
+            processResources.filesMatching("${extension.assetsBasePackage.get()}/**/*") { fileCopyDetails ->
+                val assetMapper = assetMapperProvider.get()
+
+                val output = assetMapper.map(fileCopyDetails.file.toPath())
+                if (output !is AssetMapper.MapResult.Mapped) return@filesMatching
+
+                fileCopyDetails.name = output.output.path.name
+
+                val contents = output.output.source.toString(Charset.defaultCharset())
+                val lines = contents.lines()
+                var lineNo = 0
+
+                fileCopyDetails.filter {
+                    lines[lineNo++]
+                }
+            }
+        }
     }
 }
