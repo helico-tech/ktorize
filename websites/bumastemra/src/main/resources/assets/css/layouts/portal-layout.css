@@ -17,9 +17,9 @@
         padding: var(--kt-header-padding);
         display: flex;
         justify-content: center;
-        box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+        box-shadow: var(--kt-header-box-shadow);
 
-        .container {
+        & > .container {
             height: 100%;
             width: 100%;
             max-width: var(--kt-content-max-width);
@@ -31,13 +31,13 @@
     }
 
     main {
-        --kt-main-padding: var(--kt-dims-spacing);
+        --kt-main-padding: calc(2 * var(--kt-dims-spacing));
 
         padding: var(--kt-main-padding);
         display: flex;
         justify-content: center;
 
-        .container {
+        & > .container {
             width: 100%;
             max-width: var(--kt-content-max-width);
         }

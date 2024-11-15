@@ -62,7 +62,7 @@ class CSSHandler(
                     transformedLines.add(
                         line.replace(
                             relativePath.fileName.toString(),
-                            mapper.getTransformedPath(assetResult.output).fileName.toString()
+                            assetResult.output.path.fileName.toString()
                         )
                     )
                     dependencies.add(assetResult.output)
@@ -74,15 +74,10 @@ class CSSHandler(
         val content = transformedLines.joinToString(System.lineSeparator())
         val source = content.toByteArray()
 
-        return super.handle(
-            input = input.copy(
-                source = source,
-                digest = mapper.digest(source)
-            ),
-            mapper = mapper,
-            context = context
-        ).copy(
+        return Asset.Output(
+            input = input,
             source = source,
+            digest = mapper.digest(source),
             dependencies = dependencies
         )
     }

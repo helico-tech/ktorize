@@ -52,6 +52,10 @@ abstract class AssetMapperPlugin : Plugin<Project> {
 
                 fileCopyDetails.name = output.output.path.name
 
+                if (output.output.input.digest == output.output.digest) {
+                    return@filesMatching
+                }
+
                 val contents = output.output.source.toString(Charset.defaultCharset())
                 val lines = contents.lines()
                 var lineNo = 0

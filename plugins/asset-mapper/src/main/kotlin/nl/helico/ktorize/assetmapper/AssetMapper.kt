@@ -19,8 +19,6 @@ interface AssetMapper {
         return map(Path.of(path).normalize(), context)
     }
 
-    fun getTransformedPath(asset: Asset): Path
-
     sealed interface MapResult {
         data object NotFound: MapResult
         data class Mapped(val output: Asset.Output): MapResult
@@ -33,17 +31,15 @@ interface AssetMapper {
         operator fun invoke(
             reader: AssetReader,
             handlers: List<AssetHandler>,
-            digester: AssetDigester = MD5AssetDigester,
-            pathTransformer: AssetPathTransformer= AssetPathTransformer(),
-        ): AssetMapper = AssetMapperImpl(reader, handlers, digester, pathTransformer)
+            digester: AssetDigester = Base64AssetDigester,
+        ): AssetMapper = AssetMapperImpl(reader, handlers, digester)
     }
 }
 
 class AssetMapperImpl(
     private val reader: AssetReader,
     private val handlers: List<AssetHandler>,
-    private val digester: AssetDigester = MD5AssetDigester,
-    private val pathTransformer: AssetPathTransformer= AssetPathTransformer(),
+    private val digester: AssetDigester,
 ): AssetMapper  {
 
     private val mapCache = mutableMapOf<Path, AssetMapper.MapResult>()
@@ -70,11 +66,6 @@ class AssetMapperImpl(
                 else -> result.getOrThrow().also(::cacheResultRecursive)
             }
         }
-    }
-
-    override fun getTransformedPath(asset: Asset) = when (asset) {
-        is Asset.Input -> pathTransformer.transform(asset.path, asset.digest)
-        is Asset.Output -> asset.path
     }
 
     private fun cacheResultRecursive(result: AssetMapper.MapResult.Mapped) {
