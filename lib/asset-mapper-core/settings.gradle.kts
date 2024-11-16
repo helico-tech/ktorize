@@ -6,6 +6,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ktorize-plugin"
-
-includeBuild("../../lib/asset-mapper-core")
+rootProject.name = "asset-mapper-core"

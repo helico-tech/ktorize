@@ -21,9 +21,6 @@ abstract class AssetMapperExtension @Inject constructor(
     @get:InputDirectory
     abstract val assetsBasePackage: Property<File>
 
-    @get:Input
-    abstract val packageName: Property<String>
-
     init {
         assetsBasePackage.convention(File("assets"))
     }

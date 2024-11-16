@@ -34,16 +34,18 @@ abstract class AssetMapperPlugin : Plugin<Project> {
                 override fun get(): AssetMapper = mapper
             }
 
-        val generateStaticAssetsTask = target.tasks.register(
-            GenerateStaticAssetsTask.NAME,
-            GenerateStaticAssetsTask::class.java,
+        val generateMappedAssetsConfigurationTask = target.tasks.register(
+            GenerateMappedAssetsConfigurationTask.NAME,
+            GenerateMappedAssetsConfigurationTask::class.java,
             extension,
             assetMapperProvider
         )
 
-        project.tasks.getByName("compileKotlin").dependsOn(generateStaticAssetsTask)
+        project.tasks.getByName("compileKotlin").dependsOn(generateMappedAssetsConfigurationTask)
 
         project.tasks.withType(ProcessResources::class.java) { processResources ->
+            processResources.dependsOn(generateMappedAssetsConfigurationTask)
+
             processResources.filesMatching("${extension.assetsBasePackage.get()}/**/*") { fileCopyDetails ->
                 val assetMapper = assetMapperProvider.get()
 

@@ -4,10 +4,6 @@ plugins {
     id("nl.helico.ktorize.assetmapper")
 }
 
-assetMapper {
-    packageName.set("nl.bumastemra.portal.assets")
-}
-
 application {
     mainClass.set("nl.bumastemra.portal.AppKt")
 
@@ -31,6 +27,7 @@ dependencies {
     implementation(libs.logback.classic)
 
     // ktorize
+    implementation(projects.lib.assetMapper)
     implementation(projects.lib.importmap)
     implementation(projects.lib.html)
     implementation(projects.lib.hotwireStimulus)
