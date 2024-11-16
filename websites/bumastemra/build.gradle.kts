@@ -4,6 +4,10 @@ plugins {
     id("nl.helico.ktorize.assetmapper")
 }
 
+assetMapper {
+    packageName.set("nl.bumastemra.portal.assets")
+}
+
 application {
     mainClass.set("nl.bumastemra.portal.AppKt")
 
