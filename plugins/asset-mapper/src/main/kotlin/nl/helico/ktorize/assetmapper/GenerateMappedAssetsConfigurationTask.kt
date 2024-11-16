@@ -124,7 +124,11 @@ abstract class GenerateMappedAssetsConfigurationTask @Inject constructor(
                 }
                 is Action.DescribeAsset -> {
                     val current = folderStack.removeFirst()
-                    folderStack.addFirst(current.copy(items = current.items + AssetTree.File(action.asset.input.path.toString())))
+                    val file = AssetTree.File(
+                        logicalPath = Path("/").resolve(action.asset.input.path).toString(),
+                        path = Path("/").resolve(action.asset.path).toString()
+                    )
+                    folderStack.addFirst(current.copy(items = current.items + file))
                 }
             }
         }

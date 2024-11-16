@@ -37,5 +37,8 @@ sealed interface AssetTree {
 
     @Serializable
     @SerialName("file")
-    data class File(val path: String) : AssetTree
+    data class File(
+        val logicalPath: String,
+        val path: String
+    ) : AssetTree
 }
