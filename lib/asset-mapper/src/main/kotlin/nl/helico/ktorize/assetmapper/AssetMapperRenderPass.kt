@@ -15,25 +15,17 @@ class AssetMapperRenderPass(
         action: TagConsumerAction,
         consumer: TagConsumer<*>
     ): Boolean {
+        if (action !is TagConsumerAction.TagEnd) return true
+
+        resolveAttributes(action.tag)
+
         return true
     }
 
     override fun after(
         action: TagConsumerAction,
         consumer: TagConsumer<*>
-    ) {
-        when (action) {
-            is TagConsumerAction.TagStart -> {
-                resolveAttributes(action.tag)
-            }
-
-            is TagConsumerAction.TagAttributeChange -> {
-                resolveAttributes(action.tag)
-            }
-
-            else -> {}
-        }
-    }
+    ) {}
 
     private fun resolveAttributes(tag: Tag) {
         attributes.forEach { attr  ->
