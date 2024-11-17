@@ -6,7 +6,7 @@ class DownstreamRenderPass(
     val downstream: TagConsumer<*>
 ) : RenderPass {
 
-    override fun before(action: TagConsumerAction, consumer: TagConsumer<*>): Boolean {
+    override fun before(action: TagConsumerAction, consumer: DeferredTagConsumer<*>): Boolean {
         return true
     }
 

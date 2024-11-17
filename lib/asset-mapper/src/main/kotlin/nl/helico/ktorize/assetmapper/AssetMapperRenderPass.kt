@@ -2,6 +2,7 @@ package nl.helico.ktorize.assetmapper
 
 import kotlinx.html.Tag
 import kotlinx.html.TagConsumer
+import nl.helico.ktorize.html.DeferredTagConsumer
 import nl.helico.ktorize.html.RenderPass
 import nl.helico.ktorize.html.TagConsumerAction
 import kotlin.collections.contains
@@ -13,7 +14,7 @@ class AssetMapperRenderPass(
 
     override fun before(
         action: TagConsumerAction,
-        consumer: TagConsumer<*>
+        consumer: DeferredTagConsumer<*>
     ): Boolean {
         if (action !is TagConsumerAction.TagEnd) return true
 

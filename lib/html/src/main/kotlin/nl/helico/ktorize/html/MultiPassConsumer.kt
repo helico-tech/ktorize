@@ -6,7 +6,7 @@ import kotlinx.html.TagConsumer
 import kotlinx.html.Unsafe
 import kotlinx.html.org.w3c.dom.events.Event
 
-class MultiPassConsumer(): TagConsumer<Unit> {
+class MultiPassConsumer(): DeferredTagConsumer<Unit> {
 
     private var actions = ArrayDeque<TagConsumerAction>()
 
@@ -44,6 +44,10 @@ class MultiPassConsumer(): TagConsumer<Unit> {
 
     override fun onTagStart(tag: Tag) {
         add(TagConsumerAction.TagStart(tag))
+    }
+
+    override fun onDeferred(block: TagConsumer<*>.() -> Unit) {
+        add(TagConsumerAction.Deferred(block))
     }
 
     private fun add(action: TagConsumerAction) {

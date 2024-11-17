@@ -1,6 +1,4 @@
-@import "./reset.css";
-@import "./components/button.css";
-@import "./layouts/portal-layout.css";
+@import "../reset.css";
 
 html {
     font-family: var(--kt-font-serif);

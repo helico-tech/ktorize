@@ -34,5 +34,6 @@ val AssetMapperPlugin = createApplicationPlugin(name) {
 
     onCall { call ->
         call.renderContext.addRenderPass(renderPass)
+        call.renderContext.addRenderPass(CssLoaderRenderPass(mappedAssetsConfiguration = mappedConfiguration))
     }
 }

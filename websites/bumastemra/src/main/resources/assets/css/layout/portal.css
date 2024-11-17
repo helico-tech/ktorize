@@ -1,6 +1,6 @@
 @import "../system.css";
 
-.kt-portal-layout {
+.kt-layout--portal {
     header {
         --kt-header-background-color: var(--kt-color-white);
         --kt-header-foreground-color: var(--kt-color-black);

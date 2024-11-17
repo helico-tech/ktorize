@@ -18,6 +18,14 @@ fun buildDeferredHTMLFragment(
 ): String {
     val downstream = StringBuilder().also(stringBuilderBlock)
 
+    val consumer = MultiPassConsumer()
+
+    consumer.block()
+
+    val combined = CombinedRenderPass(renderPasses)
+
+    consumer.applyRenderPass(combined)
+
     val downstreamRenderPass = DownstreamRenderPass(
         downstream = HTMLStreamBuilder(
             out = downstream,
@@ -25,14 +33,6 @@ fun buildDeferredHTMLFragment(
             xhtmlCompatible = xhtmlCompatible
         ).delayed()
     )
-
-    val consumer = MultiPassConsumer()
-
-    consumer.block()
-
-    renderPasses.forEach { renderPass ->
-        consumer.applyRenderPass(renderPass)
-    }
 
     consumer.applyRenderPass(downstreamRenderPass)
 

@@ -15,6 +15,7 @@ sealed interface TagConsumerAction {
     data class TagEnd(val tag: Tag) : TagConsumerAction
     data class TagEvent(val tag: Tag, val event: String, val value: (Event) -> Unit) : TagConsumerAction
     data class TagStart(val tag: Tag) : TagConsumerAction
+    data class Deferred(val block: TagConsumer<*>.() -> Unit) : TagConsumerAction
     data object Finalize : TagConsumerAction
 }
 
@@ -29,5 +30,9 @@ fun TagConsumerAction.apply(tagConsumer: TagConsumer<*>) {
         is TagConsumerAction.TagEvent -> tagConsumer.onTagEvent(tag, event, value)
         is TagConsumerAction.TagStart -> tagConsumer.onTagStart(tag)
         is TagConsumerAction.Finalize -> tagConsumer.finalize()
+        is TagConsumerAction.Deferred -> when (tagConsumer) {
+            is DeferredTagConsumer<*> -> tagConsumer.onDeferred(block)
+            else -> this.block(tagConsumer)
+        }
     }
 }

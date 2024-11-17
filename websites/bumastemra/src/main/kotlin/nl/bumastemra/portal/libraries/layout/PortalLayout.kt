@@ -3,7 +3,7 @@ package nl.bumastemra.portal.libraries.layout
 import kotlinx.html.*
 
 fun PortalLayout(title: String, content: DIV.() -> Unit) = BaseLayout(title) {
-    classes += "kt-portal-layout"
+    classes += "kt-layout--portal"
     header {
         div("container") {
             img {
