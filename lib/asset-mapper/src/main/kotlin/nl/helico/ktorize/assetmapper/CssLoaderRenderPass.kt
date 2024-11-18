@@ -7,10 +7,12 @@ import kotlinx.html.link
 import nl.helico.ktorize.html.DeferredTagConsumer
 import nl.helico.ktorize.html.RenderPass
 import nl.helico.ktorize.html.TagConsumerAction
+import java.nio.file.Path
 import kotlin.io.path.Path
 
 class CssLoaderRenderPass(
     private val prefix: String = "kt-",
+    private val cssPath: Path = Path("css"),
     private val mappedAssetsConfiguration: MappedAssetsConfiguration
 ) : RenderPass {
 
@@ -49,7 +51,7 @@ class CssLoaderRenderPass(
     }
 
     private fun resolveCssClasses(): List<AssetTree.File> {
-        val base = Path("/").resolve(mappedAssetsConfiguration.root.path).resolve("css").normalize()
+        val base = Path(mappedAssetsConfiguration.root.path).resolve(cssPath).normalize()
         val classNames = cssClasses.map { it.removePrefix(prefix)  }
         val assets = classNames.mapNotNull {
             val replaced = it.replace("--", "/")

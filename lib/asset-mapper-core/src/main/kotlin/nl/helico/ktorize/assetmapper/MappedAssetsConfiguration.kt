@@ -31,14 +31,21 @@ data class MappedAssetsConfiguration(
 @Serializable
 sealed interface AssetTree {
 
+    val logicalPath: String
+    val path: String
+
     @Serializable
     @SerialName("folder")
-    data class Folder(val path: String, val items: List<AssetTree>) : AssetTree
+    data class Folder(
+        override val logicalPath: String,
+        override val path: String,
+        val items: List<AssetTree>
+    ) : AssetTree
 
     @Serializable
     @SerialName("file")
     data class File(
-        val logicalPath: String,
-        val path: String
+        override val logicalPath: String,
+        override val path: String
     ) : AssetTree
 }

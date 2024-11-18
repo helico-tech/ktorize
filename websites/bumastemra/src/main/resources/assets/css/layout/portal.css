@@ -1,6 +1,15 @@
+@import "../reset.css";
 @import "../system.css";
 
 .kt-layout--portal {
+    font-family: var(--kt-font-serif);
+    font-size: var(--kt-font-root-size);
+
+    h1, h2, h3, h4, h5, h6 {
+        font-weight: var(--kt-font-weight-bolder);
+        color: var(--kt-color-primary-base);
+    }
+
     header {
         --kt-header-background-color: var(--kt-color-white);
         --kt-header-foreground-color: var(--kt-color-black);
@@ -31,7 +40,7 @@
     }
 
     main {
-        --kt-main-padding: calc(2 * var(--kt-dims-spacing));
+        --kt-main-padding: calc(2 * var(--kt-dims-spacing)) var(--kt-dims-spacing);
 
         padding: var(--kt-main-padding);
         display: flex;

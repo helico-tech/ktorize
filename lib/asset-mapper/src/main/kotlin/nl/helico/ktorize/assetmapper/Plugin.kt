@@ -21,8 +21,8 @@ val AssetMapperPlugin = createApplicationPlugin(name) {
 
     application.routing {
         staticResources(
-            remotePath = Path("/").resolve(mappedConfiguration.root.path).normalize().toString(),
-            mappedConfiguration.basePackage
+            remotePath = mappedConfiguration.root.path,
+            basePackage = mappedConfiguration.basePackage
         ) {
             cacheControl {
                 listOf(CacheControl.MaxAge(365 * 24 * 3600), Immutable)

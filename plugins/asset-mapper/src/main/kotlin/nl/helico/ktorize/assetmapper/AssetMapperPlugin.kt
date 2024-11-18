@@ -24,7 +24,6 @@ abstract class AssetMapperPlugin : Plugin<Project> {
         val assetMapperProvider : Provider<AssetMapper> =
             object : Provider<AssetMapper> {
                 private val mapper by lazy {
-                    logger.lifecycle("Instantiating asset mapper")
                     AssetMapper(
                         reader = FileAssetReader(extension.getResourcesPath()),
                         handlers = listOf(CSSHandler())

@@ -18,7 +18,6 @@ abstract class AssetMapperExtension @Inject constructor(
         val NAME = "assetMapper"
     }
 
-    @get:InputDirectory
     abstract val assetsBasePackage: Property<File>
 
     init {

@@ -1,4 +1,4 @@
-.kt-button {
+.kt-component--button {
     --kt-button-background-color: var(--kt-color-primary-base);
     --kt-button-foreground-color: var(--kt-color-white);
     --kt-button-border-radius: var(--kt-dims-radius);
