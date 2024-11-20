@@ -1,0 +1,9 @@
+.kt-component--panel {
+    --kt-panel-background-color: var(--kt-color-primary-light);
+    --kt-panel-padding: var(--kt-dims-spacing);
+    --kt-panel-border-radius: var(--kt-dims-radius);
+
+    padding: var(--kt-panel-padding);
+    background-color: var(--kt-panel-background-color);
+    border-radius: var(--kt-panel-border-radius);
+}

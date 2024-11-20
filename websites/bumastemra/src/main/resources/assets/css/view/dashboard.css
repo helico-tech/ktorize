@@ -1,21 +1,27 @@
-@import "../system.css";
-
 .kt-view--dashboard {
     display: flex;
     flex-direction: column;
     gap: var(--kt-dims-spacing);
 
-    .login {
+    .panel {
+        flex: 1;
         display: flex;
         flex-direction: column;
         gap: var(--kt-dims-spacing);
-        padding: var(--kt-dims-spacing);
-        background-color: var(--kt-color-primary-light);
-        border-radius: var(--kt-dims-radius);
+    }
 
-        .buttons {
-            display: flex;
-            gap: var(--kt-dims-spacing);
+    .buttons {
+        display: flex;
+        gap: var(--kt-dims-spacing);
+    }
+
+    .panels {
+        display: flex;
+        flex-direction: row;
+        gap: var(--kt-dims-spacing);
+
+        .onboarding {
+            --kt-panel-background-color: var(--kt-color-secondary-base);
         }
     }
 }

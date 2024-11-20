@@ -11,4 +11,5 @@
     border-radius: var(--kt-button-border-radius);
     padding: var(--kt-button-padding);
     font-weight: var(--kt-button-font-weight);
+    cursor: pointer;
 }
