@@ -40,6 +40,7 @@ dependencies {
     implementation(projects.lib.assetMapper)
     implementation(projects.lib.importmap)
     implementation(projects.lib.html)
+    implementation(projects.lib.guards)
     implementation(projects.lib.hotwireStimulus)
     implementation(projects.lib.hotwireTurbo)
 

@@ -12,7 +12,7 @@ fun Application.root() {
   install(FusionAuthPlugin)
   install(AssetMapperPlugin)
   install(ImportMapPlugin)
-  install(HotwireTurboPlugin)
+  //install(HotwireTurboPlugin)
 
   dashboard()
 }
