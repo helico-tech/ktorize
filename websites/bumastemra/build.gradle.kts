@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinx.serialization)
     application
     id("nl.helico.ktorize.assetmapper")
 }
@@ -22,6 +23,11 @@ dependencies {
     // ktor server
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     // logging
     implementation(libs.logback.classic)
@@ -35,6 +41,9 @@ dependencies {
 
     // DI
     implementation(libs.kodein.di)
+    implementation("io.ktor:ktor-server-core-jvm:3.0.0")
+    implementation("io.ktor:ktor-server-sessions-jvm:3.0.0")
+    implementation("io.ktor:ktor-server-core-jvm:3.0.0")
 }
 
 kotlin {

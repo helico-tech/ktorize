@@ -7,7 +7,7 @@ import kotlinx.html.h1
 import kotlinx.html.h2
 import kotlinx.html.p
 import kotlinx.html.section
-import nl.bumastemra.portal.libraries.layout.PortalLayout
+import nl.bumastemra.portal.features.layout.PortalLayout
 
 val DashboardView = PortalLayout(title = "Dashboard") {
     classes += "kt-view--dashboard"
