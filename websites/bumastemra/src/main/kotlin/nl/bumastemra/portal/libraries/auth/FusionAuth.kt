@@ -11,12 +11,10 @@ import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.request.host
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
 import io.ktor.util.date.GMTDate
 import io.ktor.util.date.plus
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
 
+const val FUSION_AUTH_PLUGIN = "FusionAuthPlugin"
 const val FUSION_AUTH_PROVIDER = "fusionauth"
 
 internal val DEFAULT_HTTP_CLIENT = HttpClient(CIO) {
@@ -45,39 +43,42 @@ data class FusionAuthConfig(
     }
 }
 
-fun Application.installFusionAuth(config: FusionAuthConfig = FusionAuthConfig.fromApplicationConfig(environment.config)) {
-    install(Authentication) {
-        oauth(FUSION_AUTH_PROVIDER) {
-            client = config.httpClient
-            urlProvider = { config.callBackUrl }
-            providerLookup = {
-                OAuthServerSettings.OAuth2ServerSettings(
-                    name = FUSION_AUTH_PROVIDER,
-                    authorizeUrl = "${config.baseUrl}/oauth2/authorize",
-                    accessTokenUrl = "${config.baseUrl}/oauth2/token",
-                    requestMethod = HttpMethod.Post,
-                    clientId = config.clientId,
-                    clientSecret = config.clientSecret,
-                    defaultScopes = listOf("offline_access"),
-                    onStateCreated = { call, state -> }
-                )
+val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
+    with (application) {
+        val config: FusionAuthConfig = FusionAuthConfig.fromApplicationConfig(environment.config)
+
+        install(Authentication) {
+            oauth(FUSION_AUTH_PROVIDER) {
+                client = config.httpClient
+                urlProvider = { config.callBackUrl }
+                providerLookup = {
+                    OAuthServerSettings.OAuth2ServerSettings(
+                        name = FUSION_AUTH_PROVIDER,
+                        authorizeUrl = "${config.baseUrl}/oauth2/authorize",
+                        accessTokenUrl = "${config.baseUrl}/oauth2/token",
+                        requestMethod = HttpMethod.Post,
+                        clientId = config.clientId,
+                        clientSecret = config.clientSecret,
+                        defaultScopes = listOf("offline_access"),
+                    )
+                }
             }
         }
-    }
 
-    routing {
-        authenticate(FUSION_AUTH_PROVIDER) {
-            get("/auth/login") {}
+        routing {
+            authenticate(FUSION_AUTH_PROVIDER) {
+                get("/auth/login") {}
 
-            get("/auth/callback") {
-                val currentPrincipal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
-                if (currentPrincipal != null) {
-                    call.setCookie("access_token", currentPrincipal.accessToken)
-                    if (currentPrincipal.refreshToken != null) {
-                        call.setCookie("refresh_token", currentPrincipal.refreshToken!!)
+                get("/auth/callback") {
+                    val currentPrincipal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
+                    if (currentPrincipal != null) {
+                        call.setCookie("access_token", currentPrincipal.accessToken)
+                        if (currentPrincipal.refreshToken != null) {
+                            call.setCookie("refresh_token", currentPrincipal.refreshToken!!)
+                        }
                     }
+                    call.respondRedirect("/")
                 }
-                call.respondRedirect("/")
             }
         }
     }
