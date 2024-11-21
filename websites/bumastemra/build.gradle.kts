@@ -29,6 +29,10 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
+    // auth
+    implementation(libs.java.jwt)
+    implementation(libs.jwks.rsa)
+
     // logging
     implementation(libs.logback.classic)
 

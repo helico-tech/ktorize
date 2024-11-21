@@ -5,6 +5,8 @@ kotlinx-html = "0.11.0"
 ktor = "3.0.0"
 logback-classic =  "1.4.14"
 kodein-di = "7.22.0"
+java-jwt = "4.4.0"
+jwks-rsa = "0.22.1"
 
 [libraries]
 kodein-di = { group = "org.kodein.di", name = "kodein-di", version.ref = "kodein-di" }
@@ -25,6 +27,9 @@ ktor-utils = { group = "io.ktor", name = "ktor-utils", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
+
+java-jwt = { module = "com.auth0:java-jwt", version.ref = "java-jwt" }
+jwks-rsa = { module = "com.auth0:jwks-rsa", version.ref = "jwks-rsa" }
 
 
 [plugins]
