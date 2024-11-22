@@ -2,7 +2,6 @@ package nl.helico.ktorize.guards
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.response.respondText
 
 interface Guard {
 

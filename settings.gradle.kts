@@ -6,6 +6,7 @@ includeBuild("lib/asset-mapper-core")
 includeBuild("plugins/asset-mapper")
 
 include(":lib:asset-mapper")
+include(":lib:auth")
 include(":lib:di")
 include(":lib:forms")
 include(":lib:guards")
