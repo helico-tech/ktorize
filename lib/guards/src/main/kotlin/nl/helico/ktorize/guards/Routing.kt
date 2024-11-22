@@ -31,7 +31,7 @@ val GuardPlugin = createRouteScopedPlugin(
 
     onCall { call ->
         for (guard in guards) {
-            when (val result = guard.authorize(call)) {
+            when (val result = guard.isAuthorized(call)) {
                 is Guard.AuthorizationResult.Success -> continue
                 is Guard.AuthorizationResult.Unauthorized -> {
                     if (guard.onUnauthorized != null) {

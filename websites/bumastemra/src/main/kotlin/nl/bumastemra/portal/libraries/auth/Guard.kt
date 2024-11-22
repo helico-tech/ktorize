@@ -8,12 +8,12 @@ class RolesGuard(
     private val roles: List<String>,
     override val onUnauthorized: OnUnauthorized? = null
 ) : Guard {
-    override fun authorize(call: ApplicationCall): Guard.AuthorizationResult {
+    override fun isAuthorized(call: ApplicationCall): Guard.AuthorizationResult {
         val user = call.user ?: return Guard.AuthorizationResult.Unauthorized("No user found")
         if (roles.all { it in user.roles }) {
             return Guard.AuthorizationResult.Success
         }
-        return Guard.AuthorizationResult.Unauthorized("User does not have the required roles")
+        return Guard.AuthorizationResult.Unauthorized("User does not have the required roles: ${roles.joinToString()}")
     }
 }
 

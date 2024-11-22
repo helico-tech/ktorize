@@ -8,7 +8,7 @@ interface Guard {
 
     val onUnauthorized: OnUnauthorized?
 
-    fun authorize(call: ApplicationCall): AuthorizationResult
+    fun isAuthorized(call: ApplicationCall): AuthorizationResult
 
     sealed interface AuthorizationResult {
         object Success : AuthorizationResult

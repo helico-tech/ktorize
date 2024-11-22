@@ -2,7 +2,6 @@ package nl.bumastemra.portal.libraries.auth
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
-import com.auth0.jwt.JWT
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -48,13 +47,17 @@ data class FusionAuthConfig(
     }
 }
 
-val JWKProviderKey = AttributeKey<JwkProvider>("JwkProvider")
-
 val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
 
     val config: FusionAuthConfig = FusionAuthConfig.fromApplicationConfig(environment.config)
 
-    //application.auth.put(JWKProviderKey, JwkProviderBuilder(config.baseUrl).build())
+    val accessTokenHandler = AccessTokenHandler(
+        httpClient = config.httpClient,
+        refreshTokenUrl = "${config.baseUrl}/oauth2/token",
+        jwkProvider = JwkProviderBuilder(config.baseUrl).cached(true).build(),
+        clientId = config.clientId,
+        clientSecret = config.clientSecret,
+    )
 
     with (application) {
         install(Authentication) {
@@ -84,9 +87,9 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
                 get("/auth/callback") {
                     val currentPrincipal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
                     if (currentPrincipal != null) {
-                        call.setCookie("access_token", currentPrincipal.accessToken)
+                        call.setAccessTokenCookie(currentPrincipal.accessToken)
                         if (currentPrincipal.refreshToken != null) {
-                            call.setCookie("refresh_token", currentPrincipal.refreshToken!!)
+                            call.setRefreshTokenCookie(currentPrincipal.refreshToken!!)
                         }
                     }
                     call.respondRedirect("/")
@@ -96,20 +99,41 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
     }
 
     onCall { call ->
-        val token = call.request.cookies["access_token"]
+        val token = accessTokenHandler.getAccessToken(call)
 
-        if (token.isNullOrEmpty()) {
+        if (token !is AccessToken.Valid) {
+            call.application.log.warn("Invalid access token: $token")
             return@onCall
         }
 
-        val user = User.fromJWT(token)
+        if (token is AccessToken.Refreshed) {
+            call.setAccessTokenCookie(token.jwt.token)
+            if (token.refreshToken != null) {
+                call.setRefreshTokenCookie(token.refreshToken)
+            }
+        }
 
-        call.attributes.put(UserAttributeKey, user)
+        call.attributes.put(AccessToken.Key, token)
+
+        try {
+            val user = User.fromDecodedJWT(token.jwt)
+            call.attributes.put(UserAttributeKey, user)
+        } catch (e: Exception) {
+            call.application.log.error("Failed to get user from access token", e)
+        }
     }
 }
 
-private fun ApplicationCall.setCookie(name: String, value: String) {
+private fun ApplicationCall.setAccessTokenCookie(token: String) {
+    setCookie("access_token", token,  24 * 3600)
+}
+
+private fun ApplicationCall.setRefreshTokenCookie(token: String) {
+    setCookie("refresh_token", token, 24 * 3600)
+}
+
+private fun ApplicationCall.setCookie(name: String, value: String, durationInSeconds: Int) {
     val host = request.host()
-    val expires = GMTDate().plus(24 * 60 * 60 * 1000)
+    val expires = GMTDate().plus(durationInSeconds * 1000L)
     response.cookies.append(name, value, domain = host, path = "/", secure = false, expires = expires, httpOnly = true)
 }
