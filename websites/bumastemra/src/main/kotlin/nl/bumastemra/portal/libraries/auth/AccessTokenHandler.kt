@@ -22,23 +22,20 @@ sealed interface AccessToken {
 
     sealed interface Invalid : AccessToken
 
+    data object Missing : AccessToken
+    data class Error(val error: String) : Invalid
+    data object Expired : Invalid
+
     sealed interface Valid : AccessToken {
         val jwt: DecodedJWT
         val refreshToken: String?
     }
 
-    data object Missing : AccessToken
-
-    data class Error(val error: String) : Invalid
-
-    data object Expired : Invalid
-
+    data class Refreshed(override val jwt: DecodedJWT, override val refreshToken: String?) : Valid
     data class Ok(override val jwt: DecodedJWT, override val refreshToken: String?) : Valid
 
-    data class Refreshed(override val jwt: DecodedJWT, override val refreshToken: String?) : Valid
-
     companion object {
-        val Key = AttributeKey<AccessToken>("AccessToken")
+        val Key = AttributeKey<Valid>("AccessToken")
     }
 }
 
@@ -80,13 +77,9 @@ class AccessTokenHandler(
     private fun getAndValidateJWT(jwt: String): ValidateJWTResult {
         try {
             val jwt = JWT.decode(jwt)
-
             val jwk = jwkProvider.get(jwt.keyId)
-
             val key = jwk.publicKey as RSAPublicKey
-
             val algorithm = Algorithm.RSA256(key, null)
-
             algorithm.verify(jwt)
 
             return ValidateJWTResult.Valid(jwt)
@@ -118,7 +111,13 @@ class AccessTokenHandler(
 
             if (accessToken == null) return AccessToken.Error("No access token in refresh token response")
 
-            return getAccessToken(accessToken, refreshToken, tryRefresh = false)
+            val validated = getAccessToken(accessToken, refreshToken, tryRefresh = false)
+
+            return when (validated) {
+                is AccessToken.Valid -> AccessToken.Refreshed(validated.jwt, refreshToken)
+                is AccessToken.Invalid -> AccessToken.Error("Invalid access token after refresh")
+                else -> AccessToken.Error("Unknown error")
+            }
         } catch (e: Exception) {
             return AccessToken.Error(e.message ?: "Unknown error")
         }

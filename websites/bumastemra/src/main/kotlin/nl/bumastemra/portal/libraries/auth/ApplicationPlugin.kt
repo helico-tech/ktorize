@@ -1,6 +1,5 @@
 package nl.bumastemra.portal.libraries.auth
 
-import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -13,10 +12,8 @@ import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.request.host
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.AttributeKey
 import io.ktor.util.date.GMTDate
 import io.ktor.util.date.plus
-import kotlin.text.isNullOrEmpty
 
 const val FUSION_AUTH_PLUGIN = "FusionAuthPlugin"
 const val FUSION_AUTH_PROVIDER = "fusionauth"
@@ -59,6 +56,8 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
         clientSecret = config.clientSecret,
     )
 
+    val redirectMap = mutableMapOf<String, String>()
+
     with (application) {
         install(Authentication) {
             oauth(FUSION_AUTH_PROVIDER) {
@@ -75,6 +74,12 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
                         clientId = config.clientId,
                         clientSecret = config.clientSecret,
                         defaultScopes = listOf("offline_access"),
+                        onStateCreated = { call, state ->
+                            val redirectUrl = call.request.queryParameters["redirect_url"]
+                            if (redirectUrl != null) {
+                                redirectMap[state] = redirectUrl
+                            }
+                        }
                     )
                 }
             }
@@ -92,7 +97,15 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
                             call.setRefreshTokenCookie(currentPrincipal.refreshToken!!)
                         }
                     }
-                    call.respondRedirect("/")
+
+                    val state = call.request.queryParameters["state"]
+                    val redirectUrl = redirectMap.remove(state)
+
+                    if (redirectUrl != null) {
+                        call.respondRedirect(redirectUrl)
+                    } else {
+                        call.respondRedirect("/")
+                    }
                 }
             }
         }
@@ -102,7 +115,11 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
         val token = accessTokenHandler.getAccessToken(call)
 
         if (token !is AccessToken.Valid) {
-            call.application.log.warn("Invalid access token: $token")
+            if (token !is AccessToken.Missing) {
+                call.application.log.warn("Invalid access token: $token")
+            }
+            call.removeAccessTokenCookie()
+            call.removeRefreshTokenCookie()
             return@onCall
         }
 
@@ -124,12 +141,24 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
     }
 }
 
+val ApplicationCall.accessToken get(): AccessToken.Valid? {
+    return attributes.getOrNull(AccessToken.Key)
+}
+
 private fun ApplicationCall.setAccessTokenCookie(token: String) {
     setCookie("access_token", token,  24 * 3600)
 }
 
+private fun ApplicationCall.removeAccessTokenCookie() {
+    setCookie("access_token", "", 0)
+}
+
 private fun ApplicationCall.setRefreshTokenCookie(token: String) {
     setCookie("refresh_token", token, 24 * 3600)
+}
+
+private fun ApplicationCall.removeRefreshTokenCookie() {
+    setCookie("refresh_token", "", 0)
 }
 
 private fun ApplicationCall.setCookie(name: String, value: String, durationInSeconds: Int) {
