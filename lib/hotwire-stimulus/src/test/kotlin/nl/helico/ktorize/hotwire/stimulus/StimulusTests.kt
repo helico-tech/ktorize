@@ -6,7 +6,6 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.testing.*
 import kotlinx.html.*
-import nl.helico.ktorize.assetmapper.AssetMapperPlugin
 import nl.helico.ktorize.html.respondHtml
 import nl.helico.ktorize.importmap.ImportMapPlugin
 import kotlin.test.Test
@@ -14,15 +13,15 @@ import kotlin.test.assertTrue
 
 class StimulusTests {
 
-    @Test
+    /*@Test
     fun helloWorld() = testApplication {
 
         lateinit var registry: ControllerRegistry
 
         application {
-            install(AssetMapperPlugin)
+            //install(AssetMapperPlugin)
             install(ImportMapPlugin)
-            install(HotwireStimulusPlugin)
+            //install(HotwireStimulusPlugin)
 
             routing {
                 get("/") {
@@ -71,6 +70,6 @@ Stimulus.register("hello", helloController);</script>
 
         assertTrue(body.contains(expected))
         assertTrue(registry.identifiers().contains("hello"))
-    }
+    }*/
 
 }

@@ -1,13 +1,14 @@
 package nl.helico.ktorize.hotwire.stimulus
 
 import kotlinx.html.TagConsumer
+import nl.helico.ktorize.html.DeferredTagConsumer
 import nl.helico.ktorize.html.RenderPass
 import nl.helico.ktorize.html.TagConsumerAction
 
 class StimulusControllerRenderPass(
     val registry: ControllerRegistry
 ) : RenderPass {
-    override fun before(action: TagConsumerAction, consumer: TagConsumer<*>): Boolean {
+    override fun before(action: TagConsumerAction, consumer: DeferredTagConsumer<*>): Boolean {
         return true
     }
 

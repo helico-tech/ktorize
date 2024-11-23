@@ -2,17 +2,17 @@ package nl.bumastemra.portal
 
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
-import nl.bumastemra.portal.features.auth.authFeature
+import nl.bumastemra.portal.modules.landingpage.landingPage
+import nl.bumastemra.portal.libraries.auth.OAuthPlugin
 import nl.helico.ktorize.assetmapper.AssetMapperPlugin
-import nl.helico.ktorize.hotwire.turbo.HotwireTurboPlugin
 import nl.helico.ktorize.importmap.ImportMapPlugin
 
 fun Application.root() {
+  install(OAuthPlugin)
   install(AssetMapperPlugin)
   install(ImportMapPlugin)
-  install(HotwireTurboPlugin)
 
-  authFeature()
+  landingPage()
 }
 
 fun main(args: Array<String>) {

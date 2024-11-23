@@ -1,89 +1,39 @@
 package nl.helico.ktorize.assetmapper
 
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import io.ktor.util.*
-import io.ktor.util.logging.*
-import io.ktor.utils.io.core.*
-import kotlinx.io.buffered
-import kotlinx.io.readByteArray
-import nl.helico.ktorize.assetmapper.handlers.CSSHandler
-import nl.helico.ktorize.assetmapper.readers.ResourceAssetReader
-import nl.helico.ktorize.assetmapper.readers.WebAssetReader
+import io.ktor.http.CacheControl
+import io.ktor.server.application.createApplicationPlugin
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.routing.routing
 import nl.helico.ktorize.html.renderContext
 import kotlin.io.path.Path
 
-internal val name = "AssetMapper"
-
-internal val LOGGER = KtorSimpleLogger(name)
-
-class AssetMapperConfiguration {
-    var basePackage: String = "assets"
-    var basePath: String = "/assets"
-    var tagNames: MutableList<String> = mutableListOf("img", "script", "link", "a")
-    var attributeNames: MutableList<String> = mutableListOf("src", "href")
-    var cacheDuration: Int = 31536000
-
-    var factory: PluginBuilder<AssetMapperConfiguration>.() -> AssetMapper = { ->
-        val reader = WebAssetReader(
-            basePath = Path(basePath),
-            downstream = ResourceAssetReader(
-                basePackage = Path(basePackage).normalize(),
-                classLoader = environment.classLoader
-            )
-        )
-        val handlers = listOf(CSSHandler())
-        AssetMapper(reader, handlers)
-    }
-
-    companion object {
-        val Key = AttributeKey<AssetMapperConfiguration>("AssetMapperConfiguration")
-    }
+internal object Immutable : CacheControl(null) {
+    override fun toString(): String = "immutable"
 }
 
-val AssetMapperPlugin = createApplicationPlugin(name, { AssetMapperConfiguration() }) {
+internal val name = "AssetMapperPlugin"
 
-    val assetMapper = pluginConfig.factory(this)
-    val cacheControl = listOf(Immutable, CacheControl.MaxAge(pluginConfig.cacheDuration))
+val AssetMapperPlugin = createApplicationPlugin(name) {
 
-    application.attributes.put(AssetMapper.Key, assetMapper)
-    application.attributes.put(AssetMapperConfiguration.Key, pluginConfig)
+    // load as string
+    val mappedConfigurationJson = environment.classLoader.getResourceAsStream("ktorize/${MappedAssetsConfiguration.DEFAULT_FILE_NAME}")!!.bufferedReader().readText()
+    val mappedConfiguration = MappedAssetsConfiguration.fromJSON(mappedConfigurationJson)
 
     application.routing {
-        get(assetMapper.getMappedAssetRegex(Path(pluginConfig.basePath))) {
-            val directoryName = call.parameters["directoryName"]!!.removePrefix("/")
-            val baseName = call.parameters["baseName"]!!
-            val extension = call.parameters["extension"]!!
-
-            val actualPath = Path(
-                pluginConfig.basePath,
-                directoryName,
-                "$baseName.$extension"
-            ).normalize()
-
-            when (val asset = assetMapper.map(actualPath)) {
-                is AssetMapper.MapResult.NotFound -> call.respond(HttpStatusCode.NotFound)
-                is AssetMapper.MapResult.Error -> call.respond(HttpStatusCode.InternalServerError, asset.error.message ?: "")
-                is AssetMapper.MapResult.Mapped -> {
-                    call.response.headers.append(HttpHeaders.CacheControl, cacheControl.joinToString(", "))
-                    call.respondBytes(
-                        bytes = asset.output.source.readByteArray(),
-                        contentType = asset.output.contentType
-                    )
-                }
+        staticResources(
+            remotePath = mappedConfiguration.root.path,
+            basePackage = mappedConfiguration.basePackage
+        ) {
+            cacheControl {
+                listOf(CacheControl.MaxAge(365 * 24 * 3600), Immutable)
             }
         }
     }
 
-    // add the rendering hook
-    onCall { call ->
-        val pass = AssetMapperRenderPass(assetMapper, pluginConfig.tagNames, pluginConfig.attributeNames)
-        call.renderContext.addRenderPass(pass)
-    }
-}
+    val renderPass = AssetMapperRenderPass(mappedConfiguration)
 
-internal object Immutable : CacheControl(null) {
-    override fun toString(): String = "immutable"
+    onCall { call ->
+        call.renderContext.addRenderPass(renderPass)
+        call.renderContext.addRenderPass(CssLoaderRenderPass(mappedAssetsConfiguration = mappedConfiguration))
+    }
 }

@@ -1,0 +1,12 @@
+oauth {
+  baseUrl =
+  callBackUrl =
+  clientId =
+  clientSecret =
+}
+
+session {
+  cookieName = "user_session"
+  cookieAgeInSeconds = 86400
+  signKey =
+}
