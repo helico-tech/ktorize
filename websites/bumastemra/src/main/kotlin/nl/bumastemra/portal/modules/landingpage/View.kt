@@ -1,4 +1,4 @@
-package nl.bumastemra.portal.features.dashboard
+package nl.bumastemra.portal.modules.landingpage
 
 import kotlinx.html.a
 import kotlinx.html.classes
@@ -8,12 +8,11 @@ import kotlinx.html.h2
 import kotlinx.html.h3
 import kotlinx.html.p
 import kotlinx.html.section
-import nl.bumastemra.portal.features.layout.PortalLayout
+import nl.bumastemra.portal.modules.layout.PortalLayout
 import nl.bumastemra.portal.libraries.auth.User
 import nl.helico.ktorize.html.HTMLView
-import kotlin.collections.plusAssign
 
-fun DashboardView(user: User?): HTMLView = PortalLayout(title = "Dashboard") {
+fun LandingPageView(user: User?): HTMLView = PortalLayout(title = "Dashboard") {
     classes += "kt-view--dashboard"
 
     h1 { + "Welkom bij Buma Stemra" }

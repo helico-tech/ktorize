@@ -1,4 +1,4 @@
-package nl.bumastemra.portal.features.layout
+package nl.bumastemra.portal.modules.layout
 
 import kotlinx.html.*
 import nl.helico.ktorize.html.HTMLView
