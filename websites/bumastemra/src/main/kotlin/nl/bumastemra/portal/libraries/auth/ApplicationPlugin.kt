@@ -8,12 +8,12 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.config.ApplicationConfig
-import io.ktor.server.request.host
+import io.ktor.server.config.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.date.GMTDate
-import io.ktor.util.date.plus
+import io.ktor.server.sessions.*
+import io.ktor.util.date.*
 
 const val FUSION_AUTH_PLUGIN = "FusionAuthPlugin"
 const val FUSION_AUTH_PROVIDER = "fusionauth"
@@ -32,7 +32,10 @@ data class FusionAuthConfig(
     val clientSecret: String,
 ) {
     companion object {
-        fun fromApplicationConfig(applicationConfig: ApplicationConfig, httpClient: HttpClient = DEFAULT_HTTP_CLIENT): FusionAuthConfig {
+        fun fromApplicationConfig(
+            applicationConfig: ApplicationConfig,
+            httpClient: HttpClient = DEFAULT_HTTP_CLIENT
+        ): FusionAuthConfig {
             return FusionAuthConfig(
                 httpClient = httpClient,
                 baseUrl = applicationConfig.property("fusionauth.baseUrl").getString(),
@@ -58,7 +61,16 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
 
     val redirectMap = mutableMapOf<String, String>()
 
-    with (application) {
+    with(application) {
+        install(Sessions) {
+            cookie<UserSession>("user_session") {
+                cookie.path = "/"
+                cookie.httpOnly = true
+                cookie.secure = true
+                cookie.maxAgeInSeconds = 24 * 3600
+            }
+        }
+
         install(Authentication) {
             oauth(FUSION_AUTH_PROVIDER) {
                 client = config.httpClient
@@ -74,12 +86,6 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
                         clientId = config.clientId,
                         clientSecret = config.clientSecret,
                         defaultScopes = listOf("offline_access"),
-                        onStateCreated = { call, state ->
-                            val redirectUrl = call.request.queryParameters["redirect_url"]
-                            if (redirectUrl != null) {
-                                redirectMap[state] = redirectUrl
-                            }
-                        }
                     )
                 }
             }
@@ -92,16 +98,16 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
                 get("/auth/callback") {
                     val currentPrincipal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
                     if (currentPrincipal != null) {
-                        call.setAccessTokenCookie(currentPrincipal.accessToken)
+                        call.setAccessToken(currentPrincipal.accessToken)
                         if (currentPrincipal.refreshToken != null) {
-                            call.setRefreshTokenCookie(currentPrincipal.refreshToken!!)
+                            call.setRefreshToken(currentPrincipal.refreshToken!!)
                         }
                     }
 
-                    val state = call.request.queryParameters["state"]
-                    val redirectUrl = redirectMap.remove(state)
+                    val redirectUrl = call.userSession.redirectUrl
 
                     if (redirectUrl != null) {
+                        call.updateUserSession { copy(redirectUrl = null) }
                         call.respondRedirect(redirectUrl)
                     } else {
                         call.respondRedirect("/")
@@ -118,15 +124,15 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
             if (token !is AccessToken.Missing) {
                 call.application.log.warn("Invalid access token: $token")
             }
-            call.removeAccessTokenCookie()
-            call.removeRefreshTokenCookie()
+            call.removeAccessToken()
+            call.removeRefreshToken()
             return@onCall
         }
 
         if (token is AccessToken.Refreshed) {
-            call.setAccessTokenCookie(token.jwt.token)
+            call.setAccessToken(token.jwt.token)
             if (token.refreshToken != null) {
-                call.setRefreshTokenCookie(token.refreshToken)
+                call.setRefreshToken(token.refreshToken)
             }
         }
 
@@ -141,28 +147,23 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
     }
 }
 
-val ApplicationCall.accessToken get(): AccessToken.Valid? {
-    return attributes.getOrNull(AccessToken.Key)
+val ApplicationCall.accessToken
+    get(): AccessToken.Valid? {
+        return attributes.getOrNull(AccessToken.Key)
+    }
+
+private fun ApplicationCall.setAccessToken(token: String) {
+    updateUserSession { copy(accessToken = token) }
 }
 
-private fun ApplicationCall.setAccessTokenCookie(token: String) {
-    setCookie("access_token", token,  24 * 3600)
+private fun ApplicationCall.removeAccessToken() {
+    updateUserSession { copy(accessToken = null) }
 }
 
-private fun ApplicationCall.removeAccessTokenCookie() {
-    setCookie("access_token", "", 0)
+private fun ApplicationCall.setRefreshToken(token: String) {
+    updateUserSession { copy(refreshToken = token) }
 }
 
-private fun ApplicationCall.setRefreshTokenCookie(token: String) {
-    setCookie("refresh_token", token, 24 * 3600)
-}
-
-private fun ApplicationCall.removeRefreshTokenCookie() {
-    setCookie("refresh_token", "", 0)
-}
-
-private fun ApplicationCall.setCookie(name: String, value: String, durationInSeconds: Int) {
-    val host = request.host()
-    val expires = GMTDate().plus(durationInSeconds * 1000L)
-    response.cookies.append(name, value, domain = host, path = "/", secure = false, expires = expires, httpOnly = true)
+private fun ApplicationCall.removeRefreshToken() {
+    updateUserSession { copy(refreshToken = null) }
 }

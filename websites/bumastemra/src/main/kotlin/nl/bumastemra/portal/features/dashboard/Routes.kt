@@ -6,6 +6,7 @@ import io.ktor.server.routing.*
 import nl.bumastemra.portal.libraries.auth.authenticated
 import nl.bumastemra.portal.libraries.auth.roles
 import nl.bumastemra.portal.libraries.auth.user
+import nl.helico.ktorize.guards.allOf
 import nl.helico.ktorize.guards.guard
 import nl.helico.ktorize.html.respondHtml
 
@@ -17,7 +18,7 @@ fun Application.routes() {
             call.respondHtml(view = DashboardView(call.user))
         }
 
-        guard(authenticated, roles("member")) {
+        guard(allOf(authenticated, roles("member"))) {
             get("/protected") {
                 call.respondText("Protected")
             }

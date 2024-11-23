@@ -35,10 +35,8 @@ class RolesGuard(
 
 val authenticated: AuthenticatedGuard get() {
     val onUnauthorized: OnUnauthorized = { call, _ ->
-        call.respondRedirect(permanent = false) {
-            path("/auth/login")
-            parameters.append("redirect_url", call.request.uri)
-        }
+        call.updateUserSession { copy(redirectUrl = call.request.uri) }
+        call.respondRedirect("/auth/login", permanent = false)
     }
 
     return AuthenticatedGuard(onUnauthorized)

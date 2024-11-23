@@ -2,6 +2,7 @@ package nl.helico.ktorize.guards
 
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.createRouteScopedPlugin
+import io.ktor.server.application.isHandled
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RouteSelector
@@ -10,51 +11,39 @@ import io.ktor.server.routing.RoutingResolveContext
 
 typealias OnUnauthorized = suspend (call: ApplicationCall, result: Guard.AuthorizationResult.Unauthorized) -> Unit
 
-class GuardPluginConfiguration {
-    var guards = emptyList<Guard>()
+class RouteGuardPluginConfiguration {
     var onUnauthorized: OnUnauthorized = { call, result ->
         call.respondText(status = result.statusCode, text = result.message)
     }
 }
 
-class GuardRouteSelector : RouteSelector() {
+class RouteGuardRouteSelector : RouteSelector() {
     override suspend fun evaluate(context: RoutingResolveContext, segmentIndex: Int): RouteSelectorEvaluation {
         return RouteSelectorEvaluation.Transparent
     }
 }
 
-val GuardPlugin = createRouteScopedPlugin(
+fun RouteGuardPlugin(guard: Guard) = createRouteScopedPlugin(
     name = "GuardPlugin",
-    createConfiguration = ::GuardPluginConfiguration
+    createConfiguration = ::RouteGuardPluginConfiguration
 ) {
-    val guards = pluginConfig.guards
-
     onCall { call ->
-        for (guard in guards) {
-            when (val result = guard.isAuthorized(call)) {
-                is Guard.AuthorizationResult.Success -> continue
-                is Guard.AuthorizationResult.Unauthorized -> {
-                    if (guard.onUnauthorized != null) {
-                        guard.onUnauthorized!!(call, result)
-                        return@onCall
-                    }
-
-                    pluginConfig.onUnauthorized(call, result)
-                    return@onCall
-                }
+        when (val result = guard.isAuthorized(call)) {
+            is Guard.AuthorizationResult.Success -> return@onCall
+            is Guard.AuthorizationResult.Unauthorized -> {
+                (guard.onUnauthorized ?: pluginConfig.onUnauthorized).invoke(call, result)
             }
         }
     }
 }
 
-fun Route.guard(vararg guards: Guard, build: Route.() -> Unit) {
-    guard(guards = guards, onUnauthorized = null, build = build)
+fun Route.guard(guard: Guard, build: Route.() -> Unit) {
+    guard(guard = guard, onUnauthorized = null, build = build)
 }
 
-fun Route.guard(vararg guards: Guard, onUnauthorized: OnUnauthorized?, build: Route.() -> Unit) {
-    val guardRoute = createChild(GuardRouteSelector())
-    guardRoute.install(GuardPlugin) {
-        this.guards = guards.toList()
+fun Route.guard(guard: Guard, onUnauthorized: OnUnauthorized?, build: Route.() -> Unit) {
+    val guardRoute = createChild(RouteGuardRouteSelector())
+    guardRoute.install(RouteGuardPlugin(guard)) {
         if (onUnauthorized != null) {
             this.onUnauthorized = onUnauthorized
         }

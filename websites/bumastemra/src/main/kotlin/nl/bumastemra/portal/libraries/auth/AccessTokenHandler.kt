@@ -50,10 +50,10 @@ class AccessTokenHandler(
     private val logger = KtorSimpleLogger("AccessTokenHandler")
 
     suspend fun getAccessToken(call: ApplicationCall): AccessToken {
-        val accessToken = call.request.cookies["access_token"]
+        val accessToken = call.userSession.accessToken
         if (accessToken.isNullOrEmpty()) return AccessToken.Missing
 
-        val refreshToken = call.request.cookies["refresh_token"]
+        val refreshToken = call.userSession.refreshToken
 
         return getAccessToken(accessToken, refreshToken, tryRefresh = true)
     }
