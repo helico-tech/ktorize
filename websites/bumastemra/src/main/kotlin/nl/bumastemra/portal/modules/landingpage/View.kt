@@ -1,18 +1,25 @@
-package nl.bumastemra.portal.features.dashboard
+package nl.bumastemra.portal.modules.landingpage
 
 import kotlinx.html.a
 import kotlinx.html.classes
 import kotlinx.html.div
 import kotlinx.html.h1
 import kotlinx.html.h2
+import kotlinx.html.h3
 import kotlinx.html.p
 import kotlinx.html.section
-import nl.bumastemra.portal.libraries.layout.PortalLayout
+import nl.bumastemra.portal.modules.layout.PortalLayout
+import nl.bumastemra.portal.libraries.auth.User
+import nl.helico.ktorize.html.HTMLView
 
-val DashboardView = PortalLayout(title = "Dashboard") {
+fun LandingPageView(user: User?): HTMLView = PortalLayout(title = "Dashboard") {
     classes += "kt-view--dashboard"
 
     h1 { + "Welkom bij Buma Stemra" }
+
+    if (user != null) {
+        h3 { + user.name }
+    }
 
     p {
         + "In jouw persoonlijke omgeving meld je nieuw werk aan, zie je wat je muziek opbrengt en krijg je unieke inzichten in jouw muziekdata. Log in om te starten."
@@ -22,7 +29,7 @@ val DashboardView = PortalLayout(title = "Dashboard") {
         h2 { + "Log in om verder te gaan" }
         p { + "Heb je al een BumaStemra account? Log in en ga direct naar je dashboard" }
         div("buttons") {
-            a(classes = "kt-component--button") { + "Inloggen" }
+            a(classes = "kt-component--button", href = "/auth/login") { + "Inloggen" }
             a(classes = "kt-component--button") { + "Wachtwoord vergeten" }
         }
     }

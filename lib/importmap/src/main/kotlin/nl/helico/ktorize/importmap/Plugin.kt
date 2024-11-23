@@ -14,7 +14,6 @@ val ImportMapPlugin = createRouteScopedPlugin(name) {
         val builder = ImportMapBuilderImpl()
 
         call.attributes.put(ImportMapBuilder.Key, builder)
-        LOGGER.debug("Registering ImportMapBuilder to call attributes with key: {}", ImportMapBuilder.Key)
 
         val pass = AddImportMapRenderPass(builder)
 

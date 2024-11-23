@@ -39,3 +39,6 @@ bin/
 ### Mac OS ###
 .DS_Store
 .idea
+
+### Config files ###
+*.local.conf

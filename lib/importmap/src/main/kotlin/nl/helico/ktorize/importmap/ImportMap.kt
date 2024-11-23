@@ -53,12 +53,12 @@ class ImportMapBuilderImpl(
     constructor() : this(silent = false)
 
     override fun addModuleSpecifier(moduleSpecifier: String, url: String) {
-        if (!silent) LOGGER.debug("Adding module specifier: $moduleSpecifier -> $url")
+        if (!silent) LOGGER.trace("Adding module specifier: $moduleSpecifier -> $url")
         imports[moduleSpecifier] = url
     }
 
     override fun addProvider(provider: ImportMapBuilder.Provider) {
-        if (!silent) LOGGER.debug("Adding provider: {}", provider)
+        if (!silent) LOGGER.trace("Adding provider: {}", provider)
         providers.add(provider)
     }
 
