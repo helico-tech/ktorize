@@ -9,13 +9,15 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.config.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.sessions.*
-import io.ktor.util.date.*
+import io.ktor.server.sessions.SessionTransportTransformerMessageAuthentication
+import io.ktor.server.sessions.Sessions
+import io.ktor.server.sessions.cookie
+import io.ktor.util.AttributeKey
+import io.ktor.util.hex
 
-const val FUSION_AUTH_PLUGIN = "FusionAuthPlugin"
+const val OAUTH_PLUGIN = "OAuthPlugin"
 const val FUSION_AUTH_PROVIDER = "fusionauth"
 
 internal val DEFAULT_HTTP_CLIENT = HttpClient(CIO) {
@@ -24,7 +26,7 @@ internal val DEFAULT_HTTP_CLIENT = HttpClient(CIO) {
     }
 }
 
-data class FusionAuthConfig(
+data class OAuthConfig(
     val httpClient: HttpClient,
     val baseUrl: String,
     val callBackUrl: String,
@@ -35,61 +37,67 @@ data class FusionAuthConfig(
         fun fromApplicationConfig(
             applicationConfig: ApplicationConfig,
             httpClient: HttpClient = DEFAULT_HTTP_CLIENT
-        ): FusionAuthConfig {
-            return FusionAuthConfig(
+        ): OAuthConfig {
+            return OAuthConfig(
                 httpClient = httpClient,
-                baseUrl = applicationConfig.property("fusionauth.baseUrl").getString(),
-                callBackUrl = applicationConfig.property("fusionauth.callBackUrl").getString(),
-                clientId = applicationConfig.property("fusionauth.clientId").getString(),
-                clientSecret = applicationConfig.property("fusionauth.clientSecret").getString(),
+                baseUrl = applicationConfig.property("oauth.baseUrl").getString(),
+                callBackUrl = applicationConfig.property("oauth.callBackUrl").getString(),
+                clientId = applicationConfig.property("oauth.clientId").getString(),
+                clientSecret = applicationConfig.property("oauth.clientSecret").getString(),
             )
         }
     }
 }
 
-val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
+val LoginUrlKey = AttributeKey<String>("LoginUrl")
 
-    val config: FusionAuthConfig = FusionAuthConfig.fromApplicationConfig(environment.config)
+val OAuthPlugin = createApplicationPlugin(OAUTH_PLUGIN) {
+
+    val oauthConfig: OAuthConfig = OAuthConfig.fromApplicationConfig(environment.config)
+    val sessionConfig: SessionConfig = SessionConfig.fromApplicationConfig(environment.config)
 
     val accessTokenHandler = AccessTokenHandler(
-        httpClient = config.httpClient,
-        refreshTokenUrl = "${config.baseUrl}/oauth2/token",
-        jwkProvider = JwkProviderBuilder(config.baseUrl).cached(true).build(),
-        clientId = config.clientId,
-        clientSecret = config.clientSecret,
+        httpClient = oauthConfig.httpClient,
+        refreshTokenUrl = "${oauthConfig.baseUrl}/oauth2/token",
+        jwkProvider = JwkProviderBuilder(oauthConfig.baseUrl).cached(true).build(),
+        clientId = oauthConfig.clientId,
+        clientSecret = oauthConfig.clientSecret,
     )
-
-    val redirectMap = mutableMapOf<String, String>()
 
     with(application) {
         install(Sessions) {
-            cookie<UserSession>("user_session") {
+            val secretSignKey = hex(sessionConfig.signKey)
+
+            cookie<UserSession>(sessionConfig.cookieName) {
                 cookie.path = "/"
                 cookie.httpOnly = true
                 cookie.secure = true
-                cookie.maxAgeInSeconds = 24 * 3600
+                cookie.maxAgeInSeconds = sessionConfig.cookieAgeInSeconds
+                transform(SessionTransportTransformerMessageAuthentication(secretSignKey))
             }
         }
 
         install(Authentication) {
             oauth(FUSION_AUTH_PROVIDER) {
-                client = config.httpClient
+                client = oauthConfig.httpClient
                 urlProvider = {
-                    config.callBackUrl
+                    oauthConfig.callBackUrl
                 }
                 providerLookup = {
                     OAuthServerSettings.OAuth2ServerSettings(
                         name = FUSION_AUTH_PROVIDER,
-                        authorizeUrl = "${config.baseUrl}/oauth2/authorize",
-                        accessTokenUrl = "${config.baseUrl}/oauth2/token",
+                        authorizeUrl = "${oauthConfig.baseUrl}/oauth2/authorize",
+                        accessTokenUrl = "${oauthConfig.baseUrl}/oauth2/token",
                         requestMethod = HttpMethod.Post,
-                        clientId = config.clientId,
-                        clientSecret = config.clientSecret,
+                        clientId = oauthConfig.clientId,
+                        clientSecret = oauthConfig.clientSecret,
                         defaultScopes = listOf("offline_access"),
                     )
                 }
             }
         }
+
+        attributes.put(LoginUrlKey, "/auth/login")
 
         routing {
             authenticate(FUSION_AUTH_PROVIDER) {
@@ -140,7 +148,7 @@ val FusionAuthPlugin = createApplicationPlugin(FUSION_AUTH_PLUGIN) {
 
         try {
             val user = User.fromDecodedJWT(token.jwt)
-            call.attributes.put(UserAttributeKey, user)
+            call.attributes.put(User.Key, user)
         } catch (e: Exception) {
             call.application.log.error("Failed to get user from access token", e)
         }

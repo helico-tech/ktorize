@@ -18,7 +18,7 @@ fun Application.routes() {
             call.respondHtml(view = DashboardView(call.user))
         }
 
-        guard(allOf(authenticated, roles("member"))) {
+        guard(authenticated) {
             get("/protected") {
                 call.respondText("Protected")
             }

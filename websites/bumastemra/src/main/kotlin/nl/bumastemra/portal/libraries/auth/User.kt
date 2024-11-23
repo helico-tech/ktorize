@@ -6,8 +6,6 @@ import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.log
 import io.ktor.util.AttributeKey
 
-val UserAttributeKey = AttributeKey<User>("User")
-
 data class User(
     val id: String,
     val email: String,
@@ -15,6 +13,8 @@ data class User(
     val roles: List<String> = emptyList()
 ) {
     companion object {
+        val Key = AttributeKey<User>("User")
+
         fun fromJWT(jwt: String): User {
             val jwt = JWT.decode(jwt)
             return fromDecodedJWT(jwt)
@@ -33,7 +33,7 @@ data class User(
 
 val ApplicationCall.user: User? get() {
     return try {
-        this.attributes.getOrNull(UserAttributeKey)
+        this.attributes.getOrNull(User.Key)
     } catch (e: Exception) {
         application.log.error("Failed to get user from call", e)
         null
