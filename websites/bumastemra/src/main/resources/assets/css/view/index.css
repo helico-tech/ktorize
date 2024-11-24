@@ -1,0 +1,64 @@
+.kt-view--index {
+    display: flex;
+    flex-direction: column;
+    gap: var(--kt-dims-spacing);
+
+    .kt-component--panel {
+        flex: 1;
+        flex-direction: column;
+    }
+
+    .buttons {
+        display: flex;
+        gap: var(--kt-dims-spacing);
+    }
+
+    .panels {
+        display: flex;
+        flex-direction: row;
+        gap: var(--kt-dims-spacing);
+    }
+
+    .onboarding {
+        --kt-panel-background-color: var(--kt-color-secondary-base);
+    }
+
+    .profile-picker {
+        --kt-panel-border-color: var(--kt-color-primary-light);
+        flex-direction: row;
+
+        .user, .profiles {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--kt-dims-spacing);
+        }
+
+        .profile-list {
+            background-color: var(--kt-color-white);
+            border-radius: var(--kt-dims-radius);
+
+            max-height: 20rem;
+            overflow-y: auto;
+        }
+
+        .profile {
+            display: flex;
+            flex-direction: row;
+            padding: calc(0.6 * var(--kt-dims-spacing));
+
+            text-decoration: none;
+            color: var(--kt-color-black);
+
+            cursor: pointer;
+
+            &:hover {
+                background-color: var(--kt-color-secondary-base);
+            }
+
+            .name {
+                flex: 1;
+            }
+        }
+    }
+}

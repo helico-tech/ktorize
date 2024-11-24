@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package nl.bumastemra.portal.libraries.auth
 
 import com.auth0.jwt.JWT
@@ -5,9 +7,11 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.log
 import io.ktor.util.AttributeKey
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 data class User(
-    val id: String,
+    val id: Uuid,
     val email: String,
     val name: String,
     val roles: List<String> = emptyList()
@@ -15,14 +19,9 @@ data class User(
     companion object {
         val Key = AttributeKey<User>("User")
 
-        fun fromJWT(jwt: String): User {
-            val jwt = JWT.decode(jwt)
-            return fromDecodedJWT(jwt)
-        }
-
         fun fromDecodedJWT(jwt: DecodedJWT): User {
             return User(
-                id = jwt.getClaim("sub").asString(),
+                id = Uuid.parse(jwt.getClaim("sub").asString()),
                 email = jwt.getClaim("email").asString(),
                 name = jwt.getClaim("fullName").asString(),
                 roles = jwt.getClaim("roles").asList(String::class.java)

@@ -38,14 +38,13 @@ dependencies {
 
     // ktorize
     implementation(projects.lib.assetMapper)
+    implementation(projects.lib.di)
     implementation(projects.lib.importmap)
     implementation(projects.lib.html)
     implementation(projects.lib.guards)
     implementation(projects.lib.hotwireStimulus)
     implementation(projects.lib.hotwireTurbo)
 
-    // DI
-    implementation(libs.kodein.di)
     implementation("io.ktor:ktor-server-core-jvm:3.0.0")
     implementation("io.ktor:ktor-server-sessions-jvm:3.0.0")
     implementation("io.ktor:ktor-server-core-jvm:3.0.0")

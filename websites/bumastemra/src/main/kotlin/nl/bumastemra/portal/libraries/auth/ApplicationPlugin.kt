@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package nl.bumastemra.portal.libraries.auth
 
 import com.auth0.jwk.JwkProviderBuilder
@@ -16,6 +18,7 @@ import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 import io.ktor.util.AttributeKey
 import io.ktor.util.hex
+import kotlin.uuid.ExperimentalUuidApi
 
 const val OAUTH_PLUGIN = "OAuthPlugin"
 const val FUSION_AUTH_PROVIDER = "fusionauth"
@@ -121,6 +124,12 @@ val OAuthPlugin = createApplicationPlugin(OAUTH_PLUGIN) {
                         call.respondRedirect("/")
                     }
                 }
+            }
+
+            get("/auth/logout") {
+                call.removeAccessToken()
+                call.removeRefreshToken()
+                call.respondRedirect("/")
             }
         }
     }

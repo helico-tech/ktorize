@@ -1,9 +1,9 @@
-package nl.bumastemra.portal.modules.layout
+package nl.bumastemra.portal.layouts
 
 import kotlinx.html.*
 import nl.helico.ktorize.html.HTMLView
 
-fun PortalLayout(title: String = "Buma Stemra Portal", content: DIV.() -> Unit): HTMLView = {
+fun PortalLayout(title: String = "Buma Stemra Portal", content: MAIN.() -> Unit): HTMLView = {
     lang = "en"
     classes = setOf("kt-layout--portal")
 
@@ -31,9 +31,7 @@ fun PortalLayout(title: String = "Buma Stemra Portal", content: DIV.() -> Unit):
         }
 
         main {
-            div("container") {
-                content()
-            }
+            content()
         }
     }
 }

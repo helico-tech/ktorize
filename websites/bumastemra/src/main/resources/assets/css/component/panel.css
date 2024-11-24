@@ -6,4 +6,7 @@
     padding: var(--kt-panel-padding);
     background-color: var(--kt-panel-background-color);
     border-radius: var(--kt-panel-border-radius);
+
+    display: flex;
+    gap: var(--kt-dims-spacing);
 }
