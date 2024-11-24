@@ -1,13 +1,14 @@
 package nl.bumastemra.portal.layouts
 
 import kotlinx.html.*
+import nl.helico.ktorize.hotwire.turbo.turboPrefetch
 import nl.helico.ktorize.html.HTMLView
 
-fun PortalLayout(title: String = "Buma Stemra Portal", content: MAIN.() -> Unit): HTMLView = {
+fun PortalLayout(title: String = "Buma Stemra Portal", classes: Set<String> = emptySet(), topMenu: DIV.() -> Unit = {}, content: MAIN.() -> Unit): HTMLView = {
     lang = "en"
-    classes = setOf("kt-layout--portal")
 
     head {
+        turboPrefetch(false)
         title(content = title)
         link(rel = "icon", href = "/assets/img/favicon.ico")
         link(rel = "preconnect", href = "https://fonts.googleapis.com")
@@ -21,12 +22,17 @@ fun PortalLayout(title: String = "Buma Stemra Portal", content: MAIN.() -> Unit)
     }
 
     body {
+        this.classes = classes + setOf("kt-layout--portal")
         header {
             div("container") {
-                img {
-                    src = "/assets/img/logo.svg"
-                    alt = "Buma Stemra"
+                a(href = "/") {
+                    img {
+                        src = "/assets/img/logo.svg"
+                        alt = "Buma Stemra"
+                    }
                 }
+
+                topMenu()
             }
         }
 

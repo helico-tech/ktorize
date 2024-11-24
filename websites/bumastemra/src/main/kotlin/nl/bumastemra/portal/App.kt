@@ -7,12 +7,14 @@ import nl.bumastemra.portal.libraries.auth.OAuthPlugin
 import nl.bumastemra.portal.routes.routes
 import nl.helico.ktorize.assetmapper.AssetMapperPlugin
 import nl.helico.ktorize.di.DIPlugin
+import nl.helico.ktorize.hotwire.turbo.HotwireTurboPlugin
 import nl.helico.ktorize.importmap.ImportMapPlugin
 
 fun Application.root() {
   install(OAuthPlugin)
   install(AssetMapperPlugin)
   install(ImportMapPlugin)
+  install(HotwireTurboPlugin)
 
   install(DIPlugin {
     import(UserProfileModule)

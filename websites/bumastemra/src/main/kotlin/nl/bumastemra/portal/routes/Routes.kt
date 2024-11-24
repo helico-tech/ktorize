@@ -6,5 +6,6 @@ import io.ktor.server.routing.routing
 fun Application.routes() {
     routing {
         index()
+        dashboard()
     }
 }

@@ -37,9 +37,16 @@
             height: 100%;
             width: 100%;
             max-width: var(--kt-content-max-width);
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
 
-            img {
+            & > a {
                 height: 100%;
+                img {
+                    height: 100%;
+                }
             }
         }
     }

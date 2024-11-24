@@ -9,7 +9,6 @@ import io.ktor.server.sessions.sessions
 import io.ktor.server.sessions.set
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 data class SessionConfig(
     val cookieName: String,
@@ -32,7 +31,13 @@ data class UserSession(
     val accessToken: String? = null,
     val refreshToken: String? = null,
     val redirectUrl: String? = null,
-    val selectedProfileId: String? = null,
+    val profile: Profile? = null
+)
+
+@Serializable
+data class Profile(
+    val id: String,
+    val role: String
 )
 
 val ApplicationCall.userSession: UserSession get() {

@@ -41,6 +41,14 @@ fun Route.guard(guard: Guard, build: Route.() -> Unit) {
     guard(guard = guard, onUnauthorized = null, build = build)
 }
 
+fun Route.guard(vararg guards: Guard, build: Route.() -> Unit) {
+    guard(guard = allOf(*guards), onUnauthorized = null, build = build)
+}
+
+fun Route.guard(vararg guards: Guard, onUnauthorized: OnUnauthorized?, build: Route.() -> Unit) {
+    guard(guard = allOf(*guards), onUnauthorized = onUnauthorized, build = build)
+}
+
 fun Route.guard(guard: Guard, onUnauthorized: OnUnauthorized?, build: Route.() -> Unit) {
     val guardRoute = createChild(RouteGuardRouteSelector())
     guardRoute.install(RouteGuardPlugin(guard)) {

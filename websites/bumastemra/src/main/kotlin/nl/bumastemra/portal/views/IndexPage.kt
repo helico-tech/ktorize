@@ -110,6 +110,9 @@ internal fun FlowContent.ProfilePickerPanel(user: User, selectedProfile: UserPro
             }
 
             div("buttons") {
+                if (selectedProfile != null) {
+                    a(classes = "kt-component--button", href = "/dashboard") { +"Naar Dashboard" }
+                }
                 a(classes = "kt-component--button", href = "/auth/logout") { +"Uitloggen" }
             }
         }

@@ -13,15 +13,12 @@ internal val name = "DI"
 val DIKey get() = AttributeKey<DI>(name)
 
 fun DIPlugin(init: MainBuilder.() -> Unit) = createApplicationPlugin(name) {
-
     val di = DI(init = init)
-
     application.attributes.put(DIKey, di)
 }
 
 
 val Application.di: DI get() = attributes[DIKey]
-
 val Route.di: DI get() = application.attributes[DIKey]
 
 inline fun <reified T : Any> Application.instance(): T {

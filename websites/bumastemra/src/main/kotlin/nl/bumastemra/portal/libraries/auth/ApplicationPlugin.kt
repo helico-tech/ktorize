@@ -18,6 +18,7 @@ import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 import io.ktor.util.AttributeKey
 import io.ktor.util.hex
+import kotlinx.serialization.json.Json
 import kotlin.uuid.ExperimentalUuidApi
 
 const val OAUTH_PLUGIN = "OAuthPlugin"
@@ -25,7 +26,9 @@ const val FUSION_AUTH_PROVIDER = "fusionauth"
 
 internal val DEFAULT_HTTP_CLIENT = HttpClient(CIO) {
     install(ContentNegotiation) {
-        json()
+        json(Json {
+            ignoreUnknownKeys = true
+        })
     }
 }
 
