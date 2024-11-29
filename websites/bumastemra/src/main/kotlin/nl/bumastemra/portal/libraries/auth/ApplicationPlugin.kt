@@ -109,7 +109,7 @@ val OAuthPlugin = createApplicationPlugin(OAUTH_PLUGIN) {
             authenticate(FUSION_AUTH_PROVIDER) {
                 get("/auth/login") {}
 
-                get("/auth/callback") {
+                get("/login/check") {
                     val currentPrincipal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
                     if (currentPrincipal != null) {
                         call.setAccessToken(currentPrincipal.accessToken)

@@ -1,22 +1,15 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlinx.serialization)
-    application
+    alias(libs.plugins.jooq)
+
     id("nl.helico.ktorize.assetmapper")
+
+    application
 }
 
 application {
     mainClass.set("nl.bumastemra.portal.AppKt")
-
-    val environment = System.getenv("APP_ENV")
-
-    if (environment != null) {
-        logger.lifecycle("Using application.$environment.conf")
-        applicationDefaultJvmArgs = listOf(
-            "-Dconfig.resource=application.$environment.conf",
-            "-Dlogback.configurationFile=logback.$environment.xml"
-        )
-    }
 }
 
 dependencies {
@@ -29,12 +22,22 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
+    // coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.reactive)
+
     // auth
     implementation(libs.java.jwt)
     implementation(libs.jwks.rsa)
 
     // logging
     implementation(libs.logback.classic)
+
+    // db
+    implementation(libs.jooq)
+    implementation(libs.postgres)
+    implementation(libs.hikari)
+    jooqGenerator(libs.postgres)
 
     // ktorize
     implementation(projects.lib.assetMapper)
@@ -52,6 +55,44 @@ dependencies {
 
 kotlin {
     jvmToolchain(21)
+}
+
+jooq {
+    version.set(libs.versions.jooq)
+
+    configurations {
+        create("main") {
+            jooqConfiguration.apply {
+                jdbc.apply {
+                    driver = "org.postgresql.Driver"
+                    url = "jdbc:postgresql://localhost:5432/platform_api"
+                    user = "postgres"
+                    password = "postgres"
+                }
+
+                generator.apply {
+                    name = "org.jooq.codegen.KotlinGenerator"
+                    database.apply {
+                        name = "org.jooq.meta.postgres.PostgresDatabase"
+                        inputSchema = "public"
+                        includes = "user_profiles|relations"
+                    }
+                    target.apply {
+                        packageName = "nl.bumastemra.portal.db.platform_api"
+                        directory = "src/main/generated/jooq/platform_api"
+                    }
+                }
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        kotlin {
+            srcDir("src/main/generated")
+        }
+    }
 }
 
 tasks.withType<Test>().configureEach {

@@ -1,12 +1,17 @@
 oauth {
   baseUrl =
-  callBackUrl =
+  callBackUrl = "https://ktorize.helico.dev/auth/callback"
   clientId =
   clientSecret =
 }
 
 session {
-  cookieName = "user_session"
-  cookieAgeInSeconds = 86400
   signKey =
+}
+
+database {
+  platform_api {
+    username =
+    password =
+  }
 }

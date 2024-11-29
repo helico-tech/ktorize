@@ -2,6 +2,7 @@ package nl.bumastemra.portal
 
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
+import nl.bumastemra.portal.db.DatabaseModule
 import nl.bumastemra.portal.features.userprofiles.UserProfileModule
 import nl.bumastemra.portal.libraries.auth.OAuthPlugin
 import nl.bumastemra.portal.routes.routes
@@ -17,6 +18,7 @@ fun Application.root() {
   install(HotwireTurboPlugin)
 
   install(DIPlugin {
+    import(DatabaseModule)
     import(UserProfileModule)
   })
 

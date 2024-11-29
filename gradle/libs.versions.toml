@@ -1,5 +1,6 @@
 [versions]
 kotlin = "2.0.21"
+kotlinx-coroutines = "1.9.0"
 kotlinx-serialization = "1.7.3"
 kotlinx-html = "0.11.0"
 ktor = "3.0.0"
@@ -7,10 +8,16 @@ logback-classic =  "1.4.14"
 kodein-di = "7.22.0"
 java-jwt = "4.4.0"
 jwks-rsa = "0.22.1"
+postgres = "42.7.4"
+jooq = "3.19.15"
+hikari = "6.2.1"
+studer = "9.0"
 
 [libraries]
 kodein-di = { group = "org.kodein.di", name = "kodein-di", version.ref = "kodein-di" }
 
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-reactive = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-reactive", version.ref = "kotlinx-coroutines" }
 kotlinx-html = { group = "org.jetbrains.kotlinx", name = "kotlinx-html", version.ref = "kotlinx-html" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
@@ -31,8 +38,12 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 java-jwt = { module = "com.auth0:java-jwt", version.ref = "java-jwt" }
 jwks-rsa = { module = "com.auth0:jwks-rsa", version.ref = "jwks-rsa" }
 
+postgres = { group = "org.postgresql", name = "postgresql", version.ref = "postgres" }
+jooq = { group = "org.jooq", name = "jooq", version.ref = "jooq" }
+hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+jooq = { id = "nu.studer.jooq", version.ref = "studer" }

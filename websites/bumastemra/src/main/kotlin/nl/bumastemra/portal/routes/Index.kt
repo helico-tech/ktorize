@@ -5,7 +5,7 @@ package nl.bumastemra.portal.routes
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
-import nl.bumastemra.portal.features.userprofiles.UserProfileRepository
+import nl.bumastemra.portal.features.userprofiles.FetchUserProfilesUseCase
 import nl.bumastemra.portal.libraries.auth.Profile
 import nl.bumastemra.portal.libraries.auth.updateUserSession
 import nl.bumastemra.portal.libraries.auth.user
@@ -14,15 +14,14 @@ import nl.bumastemra.portal.views.IndexPageView
 import nl.helico.ktorize.di.instance
 import nl.helico.ktorize.html.respondHtml
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 fun Routing.index(
-    userProfileRepository: UserProfileRepository = instance()
+    fetchUserProfilesUseCase: FetchUserProfilesUseCase = instance(),
 ) {
     get("/") {
-        call.queryParameters["profile"]?.let(Uuid::parse)?.let { profileId ->
+        call.queryParameters["profile"]?.let { profileId ->
 
-            val profile = userProfileRepository.getUserProfile(profileId)
+            val profile = fetchUserProfilesUseCase.byId(profileId)
 
             if (profile == null) {
                 call.respondRedirect("/")
@@ -39,7 +38,7 @@ fun Routing.index(
 
         val profiles = when (user) {
             null -> emptyList()
-            else -> userProfileRepository.getUserProfiles(user.id)
+            else -> fetchUserProfilesUseCase.forUser(user.id)
         }
 
         val selectedProfileId = call.userSession.profile?.id

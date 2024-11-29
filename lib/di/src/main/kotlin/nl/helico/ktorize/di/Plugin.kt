@@ -1,11 +1,14 @@
 package nl.helico.ktorize.di
 
 import io.ktor.server.application.*
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.application
 import io.ktor.util.*
 import org.kodein.di.DI
 import org.kodein.di.DI.MainBuilder
+import org.kodein.di.DirectDI
+import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 internal val name = "DI"
@@ -13,12 +16,17 @@ internal val name = "DI"
 val DIKey get() = AttributeKey<DI>(name)
 
 fun DIPlugin(init: MainBuilder.() -> Unit) = createApplicationPlugin(name) {
-    val di = DI(init = init)
+    val di = DI {
+        bindSingleton<ApplicationConfig> { application.environment.config }
+        init()
+    }
+
     application.attributes.put(DIKey, di)
 }
 
 
 val Application.di: DI get() = attributes[DIKey]
+
 val Route.di: DI get() = application.attributes[DIKey]
 
 inline fun <reified T : Any> Application.instance(): T {
@@ -29,3 +37,5 @@ inline fun <reified T : Any> Application.instance(): T {
 inline fun <reified T : Any> Route.instance(): T {
     return application.instance<T>()
 }
+
+val DirectDI.applicationConfig: ApplicationConfig get() = instance()

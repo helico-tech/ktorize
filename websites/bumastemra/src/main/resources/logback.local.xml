@@ -1,0 +1,7 @@
+<included>
+    <root level="DEBUG">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+</included>

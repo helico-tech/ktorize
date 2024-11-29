@@ -2,7 +2,6 @@
 
 package nl.bumastemra.portal.libraries.auth
 
-import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.application.log
@@ -11,7 +10,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 data class User(
-    val id: Uuid,
+    val id: String,
     val email: String,
     val name: String,
     val roles: List<String> = emptyList()
@@ -21,7 +20,7 @@ data class User(
 
         fun fromDecodedJWT(jwt: DecodedJWT): User {
             return User(
-                id = Uuid.parse(jwt.getClaim("sub").asString()),
+                id = jwt.getClaim("sub").asString(),
                 email = jwt.getClaim("email").asString(),
                 name = jwt.getClaim("fullName").asString(),
                 roles = jwt.getClaim("roles").asList(String::class.java)
