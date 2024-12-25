@@ -7,5 +7,6 @@ fun Application.routes() {
     routing {
         index()
         dashboard()
+        works()
     }
 }

@@ -1,14 +1,12 @@
 package nl.bumastemra.portal.features.userprofiles
 
+import io.exoquery.sql.jdbc.JdbcContext
+import io.exoquery.sql.Sql
+import io.exoquery.sql.jdbc.JdbcDriver
+import io.exoquery.sql.runOn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import nl.bumastemra.portal.db.platform_api.tables.Relations.Companion.RELATIONS
-import nl.bumastemra.portal.db.platform_api.tables.UserProfiles
-import nl.bumastemra.portal.db.platform_api.tables.UserProfiles.Companion.USER_PROFILES
-import org.jooq.SQLDialect
-import org.jooq.impl.DSL
-import java.util.UUID
-import javax.sql.DataSource
+
 
 interface FetchUserProfilesUseCase {
     suspend fun forUser(userId: String): List<UserProfile>
@@ -16,38 +14,16 @@ interface FetchUserProfilesUseCase {
 }
 
 class FetchUserProfilesUseCaseDatabase(
-    private val datasource: DataSource
+    private val databaseDriver: JdbcDriver
 ) : FetchUserProfilesUseCase {
-    override suspend fun forUser(userId: String): List<UserProfile> = withContext(Dispatchers.IO) {
-        val dsl = DSL.using(datasource, SQLDialect.POSTGRES)
-
-        val result = dsl.select(
-            USER_PROFILES.IDENTIFIER,
-            USER_PROFILES.USER_ID,
-            USER_PROFILES.BUSINESS_RELATION_NUMBER,
-            RELATIONS.NAME,
-            USER_PROFILES.ROLE
-        )
-        .from(USER_PROFILES)
-        .join(RELATIONS).on(USER_PROFILES.BUSINESS_RELATION_NUMBER.eq(RELATIONS.RELATION_NUMBER))
-        .where(USER_PROFILES.USER_ID.eq(UUID.fromString(userId)))
-        .orderBy(RELATIONS.NAME.asc())
-
-        result.fetch().map { record ->
-            UserProfile(
-                id = record[USER_PROFILES.IDENTIFIER].toString(),
-                userId = record[USER_PROFILES.USER_ID].toString(),
-                relationNumber = record[USER_PROFILES.BUSINESS_RELATION_NUMBER]!!,
-                relationName = record[RELATIONS.NAME]!!,
-                role = ProfileRole.fromValue(record[USER_PROFILES.ROLE]!!)
-            )
-        }
+    override suspend fun forUser(userId: String): List<UserProfile> {
+        return query.runOn(databaseDriver)
     }
 
     override suspend fun byId(id: String): UserProfile? = withContext(Dispatchers.IO) {
-        val dsl = DSL.using(datasource, SQLDialect.POSTGRES)
+        //val dsl = DSL.using(datasource, SQLDialect.POSTGRES)
 
-        val result = dsl.select(
+        /*val result = dsl.select(
             USER_PROFILES.IDENTIFIER,
             USER_PROFILES.USER_ID,
             USER_PROFILES.BUSINESS_RELATION_NUMBER,
@@ -66,6 +42,7 @@ class FetchUserProfilesUseCaseDatabase(
                 relationName = record[RELATIONS.NAME]!!,
                 role = ProfileRole.fromValue(record[USER_PROFILES.ROLE]!!)
             )
-        }
+        }*/
+        null
     }
 }

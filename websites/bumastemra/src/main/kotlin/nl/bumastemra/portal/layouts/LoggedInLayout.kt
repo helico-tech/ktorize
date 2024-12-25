@@ -18,7 +18,7 @@ fun LoggedInLayout(
             a { + "Berichten"}
             a { + "Kalender"}
             a { + "Contracten"}
-            a { + "Werken" }
+            a(href = "/works") { + "Werken" }
             a { + "Afrekeningen"}
             a { + "Inzichten" }
             a { + "Live" }
