@@ -1,11 +1,8 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.terpal
-    )
+    alias(libs.plugins.ktor)
     id("nl.helico.ktorize.assetmapper")
-
-    application
 }
 
 application {
@@ -37,7 +34,6 @@ dependencies {
     // db
     implementation(libs.postgres)
     implementation(libs.hikari)
-    implementation(libs.terpal.sql.jdbc)
 
     // ktorize
     implementation(projects.lib.assetMapper)

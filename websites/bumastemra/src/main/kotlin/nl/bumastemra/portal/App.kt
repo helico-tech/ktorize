@@ -1,6 +1,7 @@
 package nl.bumastemra.portal
 
 import io.ktor.server.application.*
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.netty.*
 import nl.bumastemra.portal.db.DatabaseModule
 import nl.bumastemra.portal.features.userprofiles.UserProfileModule
@@ -26,5 +27,7 @@ fun Application.root() {
 }
 
 fun main(args: Array<String>) {
+  println("Starting server")
+  println("Current working directory: ${System.getProperty("user.dir")}")
   return EngineMain.main(args)
 }

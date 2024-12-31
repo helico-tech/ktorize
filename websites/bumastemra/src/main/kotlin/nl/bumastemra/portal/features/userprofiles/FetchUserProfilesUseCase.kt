@@ -1,9 +1,5 @@
 package nl.bumastemra.portal.features.userprofiles
 
-import io.exoquery.sql.jdbc.JdbcContext
-import io.exoquery.sql.Sql
-import io.exoquery.sql.jdbc.JdbcDriver
-import io.exoquery.sql.runOn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -14,10 +10,11 @@ interface FetchUserProfilesUseCase {
 }
 
 class FetchUserProfilesUseCaseDatabase(
-    private val databaseDriver: JdbcDriver
+
 ) : FetchUserProfilesUseCase {
     override suspend fun forUser(userId: String): List<UserProfile> {
-        return query.runOn(databaseDriver)
+        //return query.runOn(databaseDriver)
+        return emptyList()
     }
 
     override suspend fun byId(id: String): UserProfile? = withContext(Dispatchers.IO) {

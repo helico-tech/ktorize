@@ -3,16 +3,13 @@ kotlin = "2.0.21"
 kotlinx-coroutines = "1.9.0"
 kotlinx-serialization = "1.7.3"
 kotlinx-html = "0.11.0"
-ktor = "3.0.0"
+ktor = "3.0.3"
 logback-classic =  "1.4.14"
 kodein-di = "7.22.0"
 java-jwt = "4.4.0"
 jwks-rsa = "0.22.1"
 postgres = "42.7.4"
 hikari = "6.2.1"
-terpal-plugin = "1.9.22-1.0.0.PL"
-terpal-sql-jdbc = "1.0.0.PL-1.1.0"
-terpal-sql-core = "1.0.0.PL-1.1.0"
 
 [libraries]
 kodein-di = { group = "org.kodein.di", name = "kodein-di", version.ref = "kodein-di" }
@@ -41,11 +38,8 @@ jwks-rsa = { module = "com.auth0:jwks-rsa", version.ref = "jwks-rsa" }
 
 postgres = { group = "org.postgresql", name = "postgresql", version.ref = "postgres" }
 hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
-terpal-sql-core = { group = "io.exoquery", name = "terpal-sql-core", version.ref = "terpal-sql-core" }
-terpal-sql-jdbc = { group = "io.exoquery", name = "terpal-sql-jdbc", version.ref = "terpal-sql-jdbc" }
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-terpal = { id = "io.exoquery.terpal-plugin", version.ref = "terpal-plugin" }
