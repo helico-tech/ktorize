@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalUuidApi::class)
+
 package nl.bumastemra.portal.libraries.auth
 
 import com.auth0.jwk.JwkProviderBuilder
@@ -16,13 +18,17 @@ import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 import io.ktor.util.AttributeKey
 import io.ktor.util.hex
+import kotlinx.serialization.json.Json
+import kotlin.uuid.ExperimentalUuidApi
 
 const val OAUTH_PLUGIN = "OAuthPlugin"
 const val FUSION_AUTH_PROVIDER = "fusionauth"
 
 internal val DEFAULT_HTTP_CLIENT = HttpClient(CIO) {
     install(ContentNegotiation) {
-        json()
+        json(Json {
+            ignoreUnknownKeys = true
+        })
     }
 }
 
@@ -103,7 +109,7 @@ val OAuthPlugin = createApplicationPlugin(OAUTH_PLUGIN) {
             authenticate(FUSION_AUTH_PROVIDER) {
                 get("/auth/login") {}
 
-                get("/auth/callback") {
+                get("/login/check") {
                     val currentPrincipal: OAuthAccessTokenResponse.OAuth2? = call.authentication.principal()
                     if (currentPrincipal != null) {
                         call.setAccessToken(currentPrincipal.accessToken)
@@ -121,6 +127,12 @@ val OAuthPlugin = createApplicationPlugin(OAUTH_PLUGIN) {
                         call.respondRedirect("/")
                     }
                 }
+            }
+
+            get("/auth/logout") {
+                call.removeAccessToken()
+                call.removeRefreshToken()
+                call.respondRedirect("/")
             }
         }
     }

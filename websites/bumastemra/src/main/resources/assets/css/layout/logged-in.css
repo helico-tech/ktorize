@@ -1,0 +1,18 @@
+.kt-layout--logged-in {
+    nav {
+        display: flex;
+        flex-direction: row;
+        gap: var(--kt-dims-spacing);
+
+        a {
+            color: var(--kt-color-black);
+            font-weight: var(--kt-font-weight-bolder);
+            text-decoration: none;
+            cursor: pointer;
+
+            &:hover {
+                color: var(--kt-color-primary-base);
+            }
+        }
+    }
+}

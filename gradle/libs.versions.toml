@@ -1,16 +1,20 @@
 [versions]
 kotlin = "2.0.21"
+kotlinx-coroutines = "1.9.0"
 kotlinx-serialization = "1.7.3"
 kotlinx-html = "0.11.0"
-ktor = "3.0.0"
+ktor = "3.0.3"
 logback-classic =  "1.4.14"
 kodein-di = "7.22.0"
 java-jwt = "4.4.0"
 jwks-rsa = "0.22.1"
+postgres = "42.7.4"
+hikari = "6.2.1"
 
 [libraries]
 kodein-di = { group = "org.kodein.di", name = "kodein-di", version.ref = "kodein-di" }
 
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-html = { group = "org.jetbrains.kotlinx", name = "kotlinx-html", version.ref = "kotlinx-html" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
@@ -21,6 +25,7 @@ ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-conte
 ktor-server-core = { group = "io.ktor", name = "ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { group = "io.ktor", name = "ktor-server-netty", version.ref = "ktor" }
 ktor-server-auth = { group = "io.ktor", name = "ktor-server-auth", version.ref = "ktor" }
+ktor-server-sessions = { group = "io.ktor", name = "ktor-server-sessions", version.ref = "ktor" }
 ktor-server-test-host = { group = "io.ktor", name = "ktor-server-test-host", version.ref = "ktor" }
 
 ktor-utils = { group = "io.ktor", name = "ktor-utils", version.ref = "ktor" }
@@ -31,6 +36,8 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 java-jwt = { module = "com.auth0:java-jwt", version.ref = "java-jwt" }
 jwks-rsa = { module = "com.auth0:jwks-rsa", version.ref = "jwks-rsa" }
 
+postgres = { group = "org.postgresql", name = "postgresql", version.ref = "postgres" }
+hikari = { group = "com.zaxxer", name = "HikariCP", version.ref = "hikari" }
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
