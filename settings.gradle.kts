@@ -16,3 +16,4 @@ include(":lib:html")
 include(":lib:importmap")
 
 include(":websites:bumastemra")
+include(":websites:helico-tech")

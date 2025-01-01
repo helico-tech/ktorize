@@ -28,7 +28,11 @@ abstract class AssetMapperExtension @Inject constructor(
         val mainSourceSet = sourceSetContainer.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
         val resourcesDir = mainSourceSet.resources.srcDirs.firstOrNull() ?: error("No resources directory found for main source set")
         val resourcesPath = resourcesDir.resolve(assetsBasePackage.get())
-        require(resourcesPath.exists()) { "Could not find resources directory for main source set" }
+
+        if (!resourcesPath.exists()) {
+            resourcesPath.mkdirs()
+        }
+
         return resourcesPath.toPath()
     }
 

@@ -1,0 +1,10 @@
+@import "reset.css";
+@import "system.css";
+
+body.ht-layout {
+    font-family: var(--ht-font-serif);
+    font-size: var(--ht-font-root-size);
+
+    display: flex;
+    flex-direction: column;
+}
