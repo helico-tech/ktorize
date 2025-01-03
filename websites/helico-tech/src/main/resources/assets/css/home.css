@@ -1,0 +1,93 @@
+main.ht-home {
+    max-width: var(--ht-content-max-width);
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: calc(5 * var(--ht-dims-spacing));
+
+    h1 {
+        font-size: 5rem;
+        color: var(--ht-colors-blueish);
+
+        .gradient {
+            background: linear-gradient(135deg, var(--ht-colors-purple), var(--ht-colors-yellow));
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    }
+
+    h2 {
+        font-size: 1.3rem;
+        font-weight: 500;
+        text-align: center;
+        line-height: 1.3;
+        color: var(--ht-colors-blueish);
+    }
+
+    section.services {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: calc(2 * var(--ht-dims-spacing));
+
+        article {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--ht-dims-spacing);
+
+            h1 {
+                font-size: 1.3rem;
+                color: var(--ht-colors-white);
+            }
+
+            section {
+                width: 300px;
+                background: var(--ht-colors-white);
+                border-radius: calc(2 * var(--ht-dims-radius));
+                box-shadow: 1rem 1rem 10rem 0 rgba(0, 0, 0, 0.33);
+
+                display: flex;
+                flex-direction: column;
+
+                img {
+                    width: 100%;
+                    height: 100px;
+                    object-fit: cover;
+                    border-top-left-radius: calc(2 * var(--ht-dims-radius));
+                    border-top-right-radius: calc(2 * var(--ht-dims-radius));
+                }
+
+                ul {
+                    padding: var(--ht-dims-spacing);
+                    list-style-type: circle;
+                    list-style-position: inside;
+                    flex-grow: 1;
+
+                    li {
+                        margin: var(--ht-dims-spacing) 0;
+                    }
+                }
+
+                a {
+                    background: var(--ht-colors-purple);
+                    color: var(--ht-colors-white);
+                    padding: var(--ht-dims-spacing);
+                    text-align: center;
+                    text-decoration: none;
+                    border-radius: 0 0 calc(2 * var(--ht-dims-radius)) calc(2 * var(--ht-dims-radius));
+                    transition: background 0.3s;
+
+                    &:hover {
+                        background: var(--ht-colors-blue);
+                    }
+                }
+            }
+        }
+    }
+}

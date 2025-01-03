@@ -1,4 +1,25 @@
 :root {
-    --ht-font-serif: "Inter", serif;
+    --ht-breakpoint-sm: 576px;
+    --ht-breakpoint-md: 768px;
+    --ht-breakpoint-lg: 992px;
+    --ht-breakpoint-xl: 1200px;
+    --ht-content-max-width: 1200px;
+
+    --ht-font-serif: "Open Sans", serif;
     --ht-font-root-size: 90%;
+    --ht-font-weight-light: 300;
+    --ht-font-weight-base: 400;
+    --ht-font-weight-bold: 500;
+    --ht-font-weight-bolder: 600;
+
+    --ht-colors-black: #000000;
+    --ht-colors-white: #FFFFFF;
+    --ht-colors-blueish: #324D66;
+    --ht-colors-blue: #6CB4F8;
+    --ht-colors-green: #A7EEB3;
+    --ht-colors-purple: #8F00FD;
+    --ht-colors-yellow: #FFF200;
+
+    --ht-dims-spacing: 1rem;
+    --ht-dims-radius: 0.5rem;
 }
